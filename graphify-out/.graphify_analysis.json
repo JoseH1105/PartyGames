@@ -1,0 +1,273 @@
+{
+  "communities": {
+    "0": [
+      "index_html",
+      "index_html_askleave",
+      "index_html_cats",
+      "index_html_ch",
+      "index_html_ch_colors",
+      "index_html_chpos",
+      "index_html_cv",
+      "index_html_cx",
+      "index_html_endretos",
+      "index_html_fin",
+      "index_html_g",
+      "index_html_gq",
+      "index_html_gqc",
+      "index_html_gqd",
+      "index_html_gssave",
+      "index_html_imp",
+      "index_html_impsave",
+      "index_html_iw",
+      "index_html_k",
+      "index_html_klast",
+      "index_html_kr",
+      "index_html_load",
+      "index_html_more",
+      "index_html_pips",
+      "index_html_players",
+      "index_html_pool",
+      "index_html_presets",
+      "index_html_ranks",
+      "index_html_s",
+      "index_html_save",
+      "index_html_screens",
+      "index_html_selected",
+      "index_html_subs",
+      "index_html_suits"
+    ],
+    "1": [
+      "index_html_buzz",
+      "index_html_fmttime",
+      "index_html_gsanswer",
+      "index_html_gsbegin",
+      "index_html_gscountdown",
+      "index_html_gsfinish",
+      "index_html_gsfs",
+      "index_html_gsnext",
+      "index_html_gsscore",
+      "index_html_gsshow",
+      "index_html_gsstart",
+      "index_html_gsstop",
+      "index_html_gstick",
+      "index_html_impresult",
+      "index_html_kdraw"
+    ],
+    "2": [
+      "index_html_chdraw",
+      "index_html_chhint",
+      "index_html_chlift",
+      "index_html_chreset",
+      "index_html_chresize",
+      "index_html_chstart",
+      "index_html_chstop",
+      "index_html_chtick",
+      "index_html_drawfinger",
+      "index_html_easeback",
+      "index_html_easeout"
+    ],
+    "3": [
+      "index_html_go",
+      "index_html_gsrender",
+      "index_html_impcount",
+      "index_html_impmaximps",
+      "index_html_imppickword",
+      "index_html_impsetuprender",
+      "index_html_impstart",
+      "index_html_impusingnames",
+      "index_html_namesavailable",
+      "index_html_requestwake"
+    ],
+    "4": [
+      "index_html_chcolor",
+      "index_html_draw",
+      "index_html_fill",
+      "index_html_key",
+      "index_html_nextcard",
+      "index_html_pickcouple",
+      "index_html_pickplayer",
+      "index_html_rnd",
+      "index_html_shuffle"
+    ],
+    "5": [
+      "index_html_cardface",
+      "index_html_facesvg",
+      "index_html_kenter",
+      "index_html_knew",
+      "index_html_krender",
+      "index_html_ksetdesc",
+      "index_html_makebubbles",
+      "index_html_rendercrowns"
+    ],
+    "6": [
+      "index_html_advance",
+      "index_html_builddeck",
+      "index_html_fontsizefor",
+      "index_html_goback",
+      "index_html_show",
+      "index_html_startgame"
+    ],
+    "7": [
+      "index_html_esc",
+      "index_html_impcover",
+      "index_html_imphide",
+      "index_html_impsecret",
+      "index_html_imptalk",
+      "index_html_ipshow"
+    ],
+    "8": [
+      "index_html_couples",
+      "index_html_heart",
+      "index_html_rendercats",
+      "index_html_renderplayers",
+      "index_html_validate"
+    ],
+    "9": [
+      "sw",
+      "sw_core"
+    ]
+  },
+  "cohesion": {
+    "0": 0.058823529411764705,
+    "1": 0.20952380952380953,
+    "2": 0.21818181818181817,
+    "3": 0.3111111111111111,
+    "4": 0.3333333333333333,
+    "5": 0.2857142857142857,
+    "6": 0.4,
+    "7": 0.4,
+    "8": 0.4,
+    "9": 1.0
+  },
+  "gods": [
+    {
+      "id": "index_html_go",
+      "label": "go()",
+      "degree": 11
+    },
+    {
+      "id": "index_html_rnd",
+      "label": "rnd()",
+      "degree": 9
+    },
+    {
+      "id": "index_html_buzz",
+      "label": "buzz()",
+      "degree": 8
+    },
+    {
+      "id": "index_html_impstart",
+      "label": "impStart()",
+      "degree": 8
+    },
+    {
+      "id": "index_html_shuffle",
+      "label": "shuffle()",
+      "degree": 8
+    },
+    {
+      "id": "index_html_gsfinish",
+      "label": "gsFinish()",
+      "degree": 7
+    },
+    {
+      "id": "index_html_gsstart",
+      "label": "gsStart()",
+      "degree": 7
+    },
+    {
+      "id": "index_html_krender",
+      "label": "kRender()",
+      "degree": 7
+    },
+    {
+      "id": "index_html_chtick",
+      "label": "chTick()",
+      "degree": 6
+    },
+    {
+      "id": "index_html_impsetuprender",
+      "label": "impSetupRender()",
+      "degree": 6
+    }
+  ],
+  "surprises": [
+    {
+      "source": "chTick()",
+      "target": "buzz()",
+      "source_files": [
+        "index.html.js",
+        "index.html.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 1 → community 2"
+    },
+    {
+      "source": "impSecret()",
+      "target": "buzz()",
+      "source_files": [
+        "index.html.js",
+        "index.html.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 1 → community 7"
+    },
+    {
+      "source": "gsNext()",
+      "target": "shuffle()",
+      "source_files": [
+        "index.html.js",
+        "index.html.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 1 → community 4"
+    },
+    {
+      "source": "gsStart()",
+      "target": "go()",
+      "source_files": [
+        "index.html.js",
+        "index.html.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 1 → community 3"
+    },
+    {
+      "source": "kDraw()",
+      "target": "kRender()",
+      "source_files": [
+        "index.html.js",
+        "index.html.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 1 → community 5"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `go()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 5`, `Community 6`?",
+      "why": "High betweenness centrality (0.004) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `rnd()` connect `Community 4` to `Community 0`, `Community 2`, `Community 3`, `Community 7`?",
+      "why": "High betweenness centrality (0.002) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `shuffle()` connect `Community 4` to `Community 0`, `Community 1`, `Community 3`, `Community 5`, `Community 6`?",
+      "why": "High betweenness centrality (0.002) - this node is a cross-community bridge."
+    }
+  ]
+}
