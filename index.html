@@ -1,0 +1,2148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15101d">
+<meta name="description" content="Juegos para la fiesta: Retos, Kings Cup, Chooser, El impostor y Adivina quién soy.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brindis">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Brindis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one-screen party app. Setup = stacked panels; game = full-bleed colored card, tap anywhere to advance. Single deliberate dark look. */
+:root{
+  --bg:#15101d; --surface:#211a2c; --surface-2:#2b2239; --line:#3b3050;
+  --fg:#f7f0fb; --muted:#a998bd; --accent:#ffb347; --accent-ink:#2a1606;
+  --danger:#ff6b6b;
+  --display:"Dela Gothic One", "Arial Black", Impact, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* ---------- SETUP ---------- */
+#setup{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 160px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:8px}
+.brand h1{font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,12vw,3.6rem);line-height:.9;margin:0;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+.glass{width:54px;height:72px;flex:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.panel h2{margin:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.panel h2 b{color:var(--fg);font-variant-numeric:tabular-nums}
+.add{display:flex;gap:8px}
+.add input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--fg);font:inherit;font-size:1rem}
+.add input::placeholder{color:var(--muted)}
+.add button{background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:0 20px;font-weight:800;font-size:1.4rem;line-height:1}
+.players{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1.5px solid var(--line);border-radius:999px;padding:4px 4px 4px 14px;font-weight:600;max-width:100%;transition:transform .15s,border-color .15s,background .15s}
+.chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .tag{font-size:.75rem;color:#ff8fb8;font-weight:700;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.chip .ib{width:32px;height:32px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;color:var(--muted);flex:none}
+.chip .ib:hover{background:var(--line);color:var(--fg)}
+.chip .ib.on{color:#ff5c96}
+.chip.pick{border-color:#ff5c96;background:#3a1f35;animation:pulse 1s infinite}
+.chip.target{border-style:dashed;border-color:#ff8fb8}
+@keyframes pulse{50%{transform:scale(1.04)}}
+.hint{font-size:.88rem;color:var(--muted);margin:0;line-height:1.45}
+.hint.pink{color:#ff8fb8;font-weight:600}
+.empty{color:var(--muted);font-size:.92rem;padding:6px 2px}
+.cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cat{position:relative;text-align:left;border-radius:16px;padding:14px 14px 12px;border:2px solid transparent;background:var(--surface-2);display:flex;flex-direction:column;gap:4px;min-width:0;transition:transform .12s,background .2s,border-color .2s}
+.cat:active{transform:scale(.97)}
+.cat .t{font-weight:800;font-size:1rem}
+.cat .d{font-size:.8rem;color:var(--muted);line-height:1.3}
+.cat .heat{display:flex;gap:3px;margin-top:4px}
+.cat .heat i{width:14px;height:5px;border-radius:3px;background:var(--line)}
+.cat .ck{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center}
+.cat.on{background:color-mix(in srgb,var(--c) 22%,var(--surface));border-color:var(--c)}
+.cat.on .ck{background:var(--c);border-color:var(--c)}
+.cat.on .ck::after{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.cat.on .heat i.f{background:var(--c)}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.quick button:hover{color:var(--fg);border-color:var(--muted)}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:5}
+.dock .in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.go{background:var(--accent);color:var(--accent-ink);border:0;border-radius:18px;padding:18px;font-family:var(--display);font-size:1.25rem;letter-spacing:.02em;box-shadow:0 10px 30px -10px rgba(255,179,71,.6);transition:transform .12s,opacity .2s}
+.go:active{transform:scale(.98)}
+.go:disabled{opacity:.35;box-shadow:none;cursor:not-allowed}
+.why{text-align:center;font-size:.82rem;color:var(--muted);min-height:1em}
+.note{font-size:.82rem;color:var(--muted);text-align:center;line-height:1.5;margin:0}
+
+/* ---------- GAME ---------- */
+#game{position:fixed;inset:0;background:var(--cbg,#333);color:var(--cfg,#fff);transition:background .35s ease;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden}
+#game::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.16),transparent 60%),radial-gradient(90% 60% at 50% 110%,rgba(0,0,0,.28),transparent 70%);pointer-events:none}
+.bubbles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bubbles i{position:absolute;bottom:-20px;border-radius:50%;background:rgba(255,255,255,.14);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-110vh)}}
+.top{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));z-index:2}
+.rbtn{width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.18);color:inherit;display:grid;place-items:center;flex:none}
+.rbtn:hover{background:rgba(0,0,0,.28)}
+.rbtn:disabled{opacity:.3}
+.pill{background:rgba(0,0,0,.2);border-radius:999px;padding:9px 16px;font-weight:800;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:20px max(24px,env(safe-area-inset-right,0px)) 20px max(24px,env(safe-area-inset-left,0px));z-index:1;cursor:pointer}
+.card{max-width:640px;width:100%;display:flex;flex-direction:column;gap:18px;text-align:center}
+.card .txt{font-family:var(--display);font-weight:400;line-height:1.18;text-wrap:balance;margin:0;font-size:var(--fs,2rem);overflow-wrap:anywhere}
+.card .txt .who{display:inline-block;background:var(--cfg);color:var(--cbg);padding:0 .28em;border-radius:.22em;line-height:1.25;margin:.04em 0}
+.card .sub{font-weight:600;font-size:1.02rem;opacity:.85;margin:0;line-height:1.4;text-wrap:balance}
+.card.in{animation:cardIn .42s cubic-bezier(.2,.9,.25,1.2)}
+.card.back{animation:cardBack .35s ease}
+@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.94) rotate(-1.5deg)}to{opacity:1;transform:none}}
+@keyframes cardBack{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+.bottom{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 max(14px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+.tap{font-weight:700;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;opacity:.7;display:flex;align-items:center;gap:8px}
+.tap .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.2}}
+.count{font-variant-numeric:tabular-nums;font-weight:800;font-size:.85rem;opacity:.75;min-width:44px;text-align:right}
+.rules{position:relative;z-index:2;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 16px 0;min-height:8px}
+.rules span{font-size:.72rem;font-weight:700;background:rgba(0,0,0,.2);padding:5px 10px;border-radius:999px;max-width:90vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* exit sheet */
+.sheet{position:fixed;inset:0;background:rgba(10,6,16,.6);display:flex;align-items:flex-end;justify-content:center;z-index:20;backdrop-filter:blur(4px)}
+.sheet .box{background:var(--surface);color:var(--fg);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:24px max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h3{margin:0 0 6px;font-family:var(--display);font-weight:400;font-size:1.4rem}
+.sheet button{border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:15px;font-weight:700;text-align:left}
+.sheet button.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sheet button.warn{color:var(--danger)}
+.sheet.center{align-items:center;padding:24px max(20px,env(safe-area-inset-right,0px)) 24px max(20px,env(safe-area-inset-left,0px))}
+.sheet.center .box{border-radius:26px;padding:28px 22px 22px;text-align:center;max-width:380px;border:1px solid var(--line);box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.2,.9,.3,1.3)}
+.sheet.center .box p{margin:0 0 10px;color:var(--muted);line-height:1.4}
+.sheet.center button{text-align:center}
+
+/* ---------- HOME ---------- */
+#home{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.home{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px}
+.eyebrow{margin:0 0 6px;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,16vw,5rem);line-height:.88;margin:0}
+.hero h1 span{color:var(--accent)}
+.hero .glass{width:70px;height:94px}
+.glass .bub{transform-box:fill-box;transform-origin:center;animation:gbub 2.6s ease-in infinite}
+.glass .bub:nth-of-type(2){animation-delay:.9s}.glass .bub:nth-of-type(3){animation-delay:1.7s}
+@keyframes gbub{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-22px);opacity:0}}
+.lead{margin:0;color:var(--muted);font-size:1rem;line-height:1.45;max-width:40ch}
+.modes{display:grid;gap:14px}
+.mode{position:relative;overflow:hidden;border:0;border-radius:26px;padding:20px 22px;text-align:left;background:var(--m);color:#fff;min-height:168px;display:flex;flex-direction:column;justify-content:center;gap:8px;box-shadow:0 20px 40px -24px var(--m);transition:transform .18s ease,box-shadow .18s;animation:rise .55s cubic-bezier(.2,.9,.3,1.15) both;animation-delay:var(--d,0s)}
+.mode::before{content:"";position:absolute;inset:0;background:radial-gradient(110% 80% at 100% 0%,rgba(255,255,255,.22),transparent 55%);pointer-events:none}
+.mode:hover{transform:translateY(-3px);box-shadow:0 26px 50px -22px var(--m)}
+.mode:active{transform:scale(.98)}
+@keyframes rise{from{transform:translateY(26px)}}
+.mode .meta{position:relative;align-self:flex-start;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;background:rgba(0,0,0,.22);padding:5px 10px;border-radius:999px}
+.mode h3{position:relative;font-family:var(--display);font-weight:400;font-size:2rem;margin:0;line-height:1}
+.mode p{position:relative;margin:0;font-weight:600;opacity:.92;max-width:54%;font-size:.92rem;line-height:1.35}
+.art{position:absolute;pointer-events:none}
+.mode .art{right:4px;top:50%;width:44%;height:150px;transform:translateY(-50%)}
+.art-retos .mc{position:absolute;width:86px;height:116px;border-radius:12px;background:#fff;color:#9e1030;font-family:var(--display);font-size:.74rem;line-height:1.15;padding:10px;display:flex;align-items:flex-end;box-shadow:0 12px 24px -10px rgba(0,0,0,.45)}
+.art-retos .mc1{right:58px;top:14px;background:#ffd6e6;transform:rotate(-12deg);animation:float1 4s ease-in-out infinite}
+.art-retos .mc2{right:12px;top:24px;transform:rotate(8deg);animation:float2 4.6s ease-in-out infinite}
+@keyframes float1{50%{transform:rotate(-8deg) translateY(-6px)}}
+@keyframes float2{50%{transform:rotate(12deg) translateY(-5px)}}
+.art-kings{animation:sway 5s ease-in-out infinite}
+@keyframes sway{50%{transform:translateY(-50%) rotate(3deg)}}
+.art-kings .pc{position:absolute;left:50%;bottom:8px;width:70px;height:98px;margin-left:-35px;border-radius:9px;background:#fffaf3;transform-origin:50% 125%;font-family:var(--display);font-size:1.05rem;line-height:1;padding:7px 8px;color:#221a2e;display:flex;flex-direction:column;align-items:flex-start;gap:3px;box-shadow:0 10px 22px -10px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+.art-kings .pc.red{color:#d6283f}
+.art-kings .pc svg{width:13px;height:13px;fill:currentColor}
+.art-kings .pc .big{position:absolute;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-35%)}
+.art-kings .p1{transform:rotate(-17deg)}.art-kings .p2{transform:translateY(-6px)}.art-kings .p3{transform:rotate(17deg)}
+.mode:hover .p1{transform:rotate(-27deg)}.mode:hover .p2{transform:translateY(-16px)}.mode:hover .p3{transform:rotate(27deg)}
+.art-ch .d{position:absolute;width:44px;height:44px;border-radius:50%;background:var(--dc);box-shadow:0 0 0 7px color-mix(in srgb,var(--dc) 45%,transparent),0 0 0 16px color-mix(in srgb,var(--dc) 18%,transparent);animation:dpulse 1.8s ease-in-out infinite}
+.art-ch .d1{--dc:#ffb347;left:12%;top:16%}.art-ch .d2{--dc:#ff5c96;left:56%;top:8%;animation-delay:.3s}.art-ch .d3{--dc:#7a8bff;left:38%;top:58%;animation-delay:.6s}
+@keyframes dpulse{50%{transform:scale(1.13)}}
+@media (min-width:760px){
+  .home{max-width:1040px}
+  .modes{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mode{min-height:340px;justify-content:flex-end}
+  .mode .art{top:22px;left:0;right:0;width:100%;height:190px;transform:none}
+  .art-kings{animation:none}
+  .mode p{max-width:none}
+  .art-retos .mc1{right:auto;left:calc(50% - 92px)}.art-retos .mc2{right:calc(50% - 92px)}
+}
+.backlink{align-self:flex-start;display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px 8px 10px;color:var(--muted);font-weight:700;font-size:.9rem}
+.backlink:hover{color:var(--fg);border-color:var(--muted)}
+
+/* ---------- KINGS CUP ---------- */
+#kings{position:fixed;inset:0;background:var(--kbg,#3a2a55);color:#fff;transition:background .4s ease;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden}
+#kings::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.16),transparent 60%),radial-gradient(90% 60% at 50% 110%,rgba(0,0,0,.3),transparent 70%);pointer-events:none}
+.crowns{display:flex;gap:6px;background:rgba(0,0,0,.2);padding:9px 12px;border-radius:999px}
+.crowns svg{width:22px;height:18px;fill:none;stroke:rgba(255,255,255,.55);stroke-width:1.8;stroke-linejoin:round}
+.crowns svg.on{fill:#ffb347;stroke:#ffb347}
+.crowns svg.new{animation:pop .5s cubic-bezier(.2,.9,.3,1.6)}
+@keyframes pop{0%{transform:scale(.3)}100%{transform:none}}
+.tog{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);border:0;border-radius:999px;padding:8px 8px 8px 14px;font-weight:800;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:inherit}
+.tog i{width:34px;height:20px;border-radius:999px;background:rgba(255,255,255,.25);position:relative;transition:background .2s}
+.tog i::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog[aria-pressed="true"] i{background:#ffb347}
+.tog[aria-pressed="true"] i::after{transform:translateX(14px)}
+.sheet .tog{justify-content:space-between;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-size:1rem;letter-spacing:0;text-transform:none;font-weight:700;color:var(--fg)}
+.kstage{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:12px max(24px,env(safe-area-inset-right,0px)) 12px max(24px,env(safe-area-inset-left,0px));cursor:pointer;min-height:0}
+.pwrap{perspective:1400px;width:min(60vw,250px,36vh);aspect-ratio:5/7;flex:none;container-type:inline-size}
+.pcard{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s}
+.pcard.down{transform:rotateY(180deg)}
+.pcard.deal{animation:deal .75s cubic-bezier(.2,.85,.3,1.05) both}
+@keyframes deal{0%{transform:translate3d(0,-75vh,0) rotate(-18deg) rotateY(180deg)}55%{transform:translate3d(0,10px,0) rotate(3deg) rotateY(180deg)}100%{transform:none}}
+.face{position:absolute;inset:0;border-radius:7%/5%;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 26px 50px -18px rgba(0,0,0,.6)}
+.front{background:#fffaf3;overflow:hidden}
+.front .cart{position:absolute;inset:0;width:100%;height:100%}
+.corner{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1cqw;font-family:var(--display);line-height:1;font-size:12cqw}
+.corner svg{width:.75em;height:.75em;fill:currentColor}
+.corner.tl{top:6%;left:7%}.corner.br{bottom:6%;right:7%;transform:rotate(180deg)}
+.backf{transform:rotateY(180deg);background:repeating-linear-gradient(45deg,#ffb347 0 10px,#f29a2e 10px 20px);border:5cqw solid #fffaf3;display:grid;place-items:center}
+.backf span{font-family:var(--display);font-size:16cqw;color:#fffaf3;background:#2a1606;width:34cqw;height:34cqw;border-radius:50%;display:grid;place-items:center}
+.pip{transform-box:fill-box;transform-origin:center;animation:pipIn .4s cubic-bezier(.2,.9,.3,1.5) both}
+@keyframes pipIn{from{transform:scale(0)}}
+.fig{animation:bob 2.4s ease-in-out infinite;animation-delay:.8s}
+@keyframes bob{50%{transform:translateY(-1.6px)}}
+.eyes{transform-box:fill-box;transform-origin:center;animation:blink 3.6s infinite}
+@keyframes blink{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
+.acepulse{transform-box:fill-box;transform-origin:center;animation:acep 1.8s ease-in-out infinite .7s}
+@keyframes acep{50%{transform:scale(1.08)}}
+.rinfo{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:36ch;min-height:6.5em}
+.rinfo.in{animation:cardIn .5s .25s cubic-bezier(.2,.9,.25,1.2) both}
+.rname{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,8.5vw,2.7rem);line-height:1.05;text-wrap:balance}
+.rdesc{margin:0;font-weight:600;font-size:1.02rem;line-height:1.4;opacity:.92;text-wrap:balance}
+.kend{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(10,6,16,.6);backdrop-filter:blur(6px);text-align:center;padding:24px max(24px,env(safe-area-inset-right,0px)) 24px max(24px,env(safe-area-inset-left,0px))}
+.kend h2{margin:0;font-family:var(--display);font-weight:400;font-size:2.2rem}
+.kend p{margin:0 0 8px;opacity:.85;font-weight:600}
+.kend .go,.kend .ghost{width:min(100%,320px)}
+.ghost{background:transparent;border:1.5px solid rgba(255,255,255,.45);color:#fff;border-radius:18px;padding:16px;font-weight:800}
+
+/* ---------- CHOOSER ---------- */
+#chooser{position:fixed;inset:0;background:var(--bg);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden}
+#chCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.chtop{position:absolute;top:0;left:0;right:0;pointer-events:none}
+.chtop .rbtn{pointer-events:auto;color:var(--fg);background:var(--surface-2)}
+.chtop .pill{color:var(--fg);background:var(--surface)}
+.chint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;pointer-events:none;text-align:center;padding:24px max(24px,env(safe-area-inset-right,0px)) 24px max(24px,env(safe-area-inset-left,0px));transition:opacity .3s}
+.chint.off{opacity:0}
+.chint h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,8vw,2.6rem);line-height:1.05;text-wrap:balance}
+.chint p{margin:0;color:var(--muted);max-width:32ch;line-height:1.45;font-weight:500}
+.chdots{display:flex;gap:14px;margin-bottom:6px}
+.chdots i{width:30px;height:30px;border-radius:50%;background:var(--dc);box-shadow:0 0 0 6px color-mix(in srgb,var(--dc) 30%,transparent);animation:dpulse 1.6s ease-in-out infinite}
+.chdots i:nth-child(1){--dc:#ffb347}.chdots i:nth-child(2){--dc:#ff5c96;animation-delay:.25s}.chdots i:nth-child(3){--dc:#4fd1c5;animation-delay:.5s}
+
+/* ---------- HOME: new tiles ---------- */
+.mode h3{max-width:58%}
+.art-imp .ic{position:absolute;top:50%;width:56px;height:80px;margin-top:-40px;border-radius:10px;background:#fff;color:#5b3fc4;font-family:var(--display);font-size:.72rem;display:grid;place-items:center;box-shadow:0 10px 20px -10px rgba(0,0,0,.5)}
+.art-imp .i1{left:8%;transform:rotate(-10deg)}.art-imp .i2{left:36%;transform:translateY(-6px)}
+.art-imp .i3{left:62%;transform:rotate(10deg);background:#ffb347;color:#2a1606;font-size:1.9rem;animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(16deg) translateY(-4px)}}
+.art-gs .head{position:absolute;left:50%;bottom:0;width:110px;height:118px;margin-left:-55px;border-radius:55px 55px 22px 22px;background:rgba(255,255,255,.22)}
+.art-gs .fc{position:absolute;left:50%;top:16px;transform:translateX(-50%) rotate(-4deg);background:#fff;color:#c96f12;font-family:var(--display);font-size:.82rem;padding:12px 14px;border-radius:10px;white-space:nowrap;box-shadow:0 10px 20px -10px rgba(0,0,0,.5);animation:bobfc 2.6s ease-in-out infinite}
+@keyframes bobfc{50%{transform:translateX(-50%) rotate(3deg) translateY(-4px)}}
+@media (min-width:760px){
+  .modes{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .mode{grid-column:span 2}
+  .mode:nth-child(n+4){grid-column:span 3}
+  .mode h3{max-width:none}
+}
+
+/* ---------- shared setup controls ---------- */
+#imp,#guess{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 160px}
+.stepper{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stepper button{width:54px;height:54px;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);font-size:1.6rem;font-weight:700;display:grid;place-items:center;flex:none}
+.stepper button:disabled{opacity:.3;cursor:not-allowed}
+.stepper output{font-family:var(--display);font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums;flex:1;text-align:center}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{border:0;background:transparent;border-radius:10px;padding:12px 4px;font-weight:700;color:var(--muted);white-space:nowrap;min-width:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{opacity:.3;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chipsel{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface-2);border-radius:999px;padding:9px 14px;font-weight:700;font-size:.92rem;transition:background .15s,border-color .15s}
+.chipsel small{font-size:.72rem;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.chipsel.on{background:color-mix(in srgb,#5b3fc4 35%,var(--surface));border-color:#8b74ff}
+.chipsel.on small{color:var(--fg)}
+.tog i{flex:none}
+.tog.optrow{width:100%;justify-content:space-between;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-size:.98rem;letter-spacing:0;text-transform:none;font-weight:700;color:var(--fg);text-align:left;gap:12px}
+.tog.optrow span{display:flex;flex-direction:column;gap:3px}
+.tog.optrow small{font-weight:500;color:var(--muted);font-size:.82rem}
+.mini{background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.7rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.mini:disabled{opacity:.35;cursor:default}
+.brand h1.long{font-size:clamp(2.2rem,10vw,3.2rem)}
+
+/* ---------- play screens (impostor + guess) ---------- */
+#impplay,#guessplay{position:fixed;inset:0;color:#fff;display:flex;flex-direction:column;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:background .35s ease}
+#impplay{background:var(--ibg,#4a33a8)}
+#guessplay{background:var(--gbg,#c96f12)}
+#impplay::before,#guessplay::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.16),transparent 60%),radial-gradient(90% 60% at 50% 110%,rgba(0,0,0,.3),transparent 70%);pointer-events:none}
+.ipstage{position:relative;flex:1;min-height:0;z-index:1}
+.ipview{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:16px max(24px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));overflow-y:auto}
+.tappable{cursor:pointer}
+.ipstep{margin:0;font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.75}
+.ipname{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(2.3rem,11vw,3.6rem);line-height:1.05;text-wrap:balance;overflow-wrap:anywhere;max-width:100%}
+.ipsub{margin:0;font-weight:600;opacity:.88;max-width:30ch;line-height:1.4;text-wrap:balance}
+.ipdots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:260px;margin-top:6px}
+.ipdots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);transition:transform .2s}
+.ipdots i.done{background:rgba(255,255,255,.9)}
+.ipdots i.now{background:#ffb347;transform:scale(1.35)}
+.tapcue{margin-top:14px;width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.55);display:grid;place-items:center;animation:dpulse 1.6s ease-in-out infinite}
+.tapcue::after{content:"";width:22px;height:22px;border-radius:50%;background:#fff}
+.secret{width:min(100%,340px);min-height:min(52vh,380px);background:#fffaf3;color:#221a2e;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:28px 22px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.secret.in{animation:flipIn .45s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes flipIn{from{transform:perspective(900px) rotateY(75deg);opacity:0}}
+.slabel{margin:0;font-size:.8rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#6d5f80}
+.sword{margin:0;font-family:var(--display);font-size:clamp(2rem,9vw,2.8rem);line-height:1.08;text-wrap:balance;overflow-wrap:anywhere}
+.scat{margin:4px 0 0;font-size:.88rem;font-weight:700;color:#5b3fc4;background:#ece6fb;padding:6px 12px;border-radius:999px}
+.ipview > .go,.ipbtns{width:min(100%,340px)}
+.ipbtns{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.ipbtns .go,.ipbtns .ghost{width:100%}
+
+.gnum{font-family:var(--display);font-size:9rem;line-height:1}
+.gnum.pop{animation:countPop .75s ease both}
+@keyframes countPop{0%{transform:scale(.4);opacity:0}35%{transform:scale(1.12);opacity:1}100%{transform:none;opacity:1}}
+.gscat{margin:0;font-size:.8rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+.gsname{margin:0;font-family:var(--display);font-weight:400;line-height:1.05;text-wrap:balance;overflow-wrap:anywhere;font-size:var(--gfs,3rem);max-width:100%}
+.gsname.in{animation:cardIn .35s cubic-bezier(.2,.9,.25,1.2)}
+.gsbtns{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.4fr;gap:10px;padding:0 max(14px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+.gsbtns button{border:0;border-radius:20px;padding:22px 10px;font-family:var(--display);font-size:1.2rem;color:#fff;transition:transform .1s}
+.gsbtns button:active{transform:scale(.97)}
+.gsbtns .pass{background:rgba(0,0,0,.28)}
+.gsbtns .hit{background:#fff;color:#1d6b3f}
+.gtime{font-variant-numeric:tabular-nums;font-weight:800;background:rgba(0,0,0,.2);padding:9px 14px;border-radius:999px;min-width:64px;text-align:center;border:0;color:inherit;font-size:.9rem}
+.gtime.low{background:#fff;color:#9e1030;animation:pulse .5s infinite}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;width:min(100%,360px);max-height:36vh;overflow:auto}
+.glist li{display:flex;justify-content:space-between;gap:12px;background:rgba(0,0,0,.2);padding:10px 14px;border-radius:12px;font-weight:700;text-align:left}
+.glist li span:last-child{flex:none;opacity:.8;font-size:.85rem}
+.glist li.no span:first-child{opacity:.6;text-decoration:line-through}
+.gflash{position:absolute;inset:0;z-index:5;display:grid;place-items:center;font-family:var(--display);font-size:3rem;color:#fff;pointer-events:none}
+.gflash.on{animation:flash .5s ease both}
+@keyframes flash{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-h" viewBox="0 0 20 20"><path d="M10 18.5C2.5 12.6 0 8.8 0 5.6 0 2.4 2.3.5 5 .5c2.3 0 4 1.3 5 3 1-1.7 2.7-3 5-3 2.7 0 5 1.9 5 5.1 0 3.2-2.5 7-10 12.9z"/></symbol>
+  <symbol id="s-d" viewBox="0 0 20 20"><path d="M10 0l8 10-8 10-8-10z"/></symbol>
+  <symbol id="s-s" viewBox="0 0 20 20"><path d="M10 0c4 5 10 7.8 10 12.3 0 3-2.4 4.6-4.9 4.6-1.7 0-3-.7-4-2L12.5 20h-5L9 14.9c-1 1.3-2.3 2-4 2C2.4 16.9 0 15.3 0 12.3 0 7.8 6 5 10 0z"/></symbol>
+  <symbol id="s-c" viewBox="0 0 20 20"><circle cx="10" cy="5" r="4.6"/><circle cx="4.8" cy="11.6" r="4.6"/><circle cx="15.2" cy="11.6" r="4.6"/><path d="M8.6 10h2.8l1.6 10H7z"/></symbol>
+</svg>
+
+<!-- ===================== HOME ===================== -->
+<main id="home">
+  <div class="home">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Juegos para la fiesta</p>
+        <h1>Brin<span>dis</span></h1>
+      </div>
+      <svg class="glass" viewBox="0 0 54 72" aria-hidden="true">
+        <path d="M6 4h42l-5 58a6 6 0 0 1-6 6H17a6 6 0 0 1-6-6z" fill="none" stroke="#f7f0fb" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M9.5 24h35l-3.6 37a4 4 0 0 1-4 3.6H17.1a4 4 0 0 1-4-3.6z" fill="#ffb347"/>
+        <circle class="bub" cx="22" cy="54" r="2.6" fill="#fff8"/><circle class="bub" cx="31" cy="58" r="2" fill="#fff8"/><circle class="bub" cx="35" cy="52" r="1.6" fill="#fff8"/>
+        <path d="M9 24c6-5 11 3 18-1s12-3 18 1" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </header>
+    <p class="lead">¿A qué jugamos?</p>
+    <div class="modes">
+      <button class="mode" data-go="setup" style="--m:#d93f7f;--d:.05s">
+        <span class="art art-retos" aria-hidden="true"><span class="mc mc1">¿Verdad o trago?</span><span class="mc mc2">Yo nunca he…</span></span>
+        <h3>Retos</h3>
+        <p>Verdad o trago, yo nunca, retos y cartas para parejas.</p>
+      </button>
+      <button class="mode" data-go="kings" style="--m:#3654d6;--d:.13s">
+        <span class="art art-kings" aria-hidden="true">
+          <span class="pc p1">A<svg><use href="#s-s"/></svg><svg class="big"><use href="#s-s"/></svg></span>
+          <span class="pc p3 red">7<svg><use href="#s-d"/></svg><svg class="big"><use href="#s-d"/></svg></span>
+          <span class="pc p2 red">K<svg><use href="#s-h"/></svg><svg class="big"><use href="#s-h"/></svg></span>
+        </span>
+        <h3>Kings Cup</h3>
+        <p>Cada carta trae su regla.</p>
+      </button>
+      <button class="mode" data-go="chooser" style="--m:#13987f;--d:.21s">
+        <span class="art art-ch" aria-hidden="true"><i class="d d1"></i><i class="d d2"></i><i class="d d3"></i></span>
+        <h3>Chooser</h3>
+        <p>Un dedo cada uno y la app elige a alguien.</p>
+      </button>
+      <button class="mode" data-go="imp" style="--m:#5b3fc4;--d:.29s">
+        <span class="art art-imp" aria-hidden="true"><span class="ic i1">Playa</span><span class="ic i2">Playa</span><span class="ic i3">?</span></span>
+        <h3>El impostor</h3>
+        <p>Todos tienen la misma palabra menos uno. Descubran quién es.</p>
+      </button>
+      <button class="mode" data-go="guess" style="--m:#c96f12;--d:.37s">
+        <span class="art art-gs" aria-hidden="true"><span class="head"></span><span class="fc">¿Quién soy?</span></span>
+        <h3>Adivina quién soy</h3>
+        <p>Todos ven tu personaje menos tú.</p>
+      </button>
+    </div>
+    <p class="note">Tomen con responsabilidad. Si toman, nadie maneja.</p>
+  </div>
+</main>
+
+<!-- ===================== SETUP ===================== -->
+<main id="setup" hidden>
+  <div class="wrap">
+    <button class="backlink" id="setupBack" type="button"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Menú</button>
+    <header class="brand">
+      <div>
+        <h1>Re<span>tos</span></h1>
+      </div>
+      <svg class="glass" viewBox="0 0 54 72" aria-hidden="true">
+        <path d="M6 4h42l-5 58a6 6 0 0 1-6 6H17a6 6 0 0 1-6-6z" fill="none" stroke="#f7f0fb" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M9.5 24h35l-3.6 37a4 4 0 0 1-4 3.6H17.1a4 4 0 0 1-4-3.6z" fill="#ffb347"/>
+        <circle cx="22" cy="44" r="2.6" fill="#fff6" /><circle cx="31" cy="54" r="2" fill="#fff6"/><circle cx="34" cy="36" r="1.6" fill="#fff6"/>
+        <path d="M9 24c6-5 11 3 18-1s12-3 18 1" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </header>
+
+    <section class="panel">
+      <h2>Jugadores <b id="pc">0</b></h2>
+      <form class="add" id="addForm">
+        <input id="nameIn" maxlength="18" placeholder="Nombre del jugador" autocomplete="off" enterkeyhint="done" aria-label="Nombre del jugador">
+        <button type="submit" aria-label="Añadir jugador">+</button>
+      </form>
+      <div class="players" id="players"></div>
+      <p class="hint" id="coupleHint">Toca el corazón y luego a su pareja para unirlos.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Modos de juego <b id="cc">0</b></h2>
+      <div class="quick">
+        <button type="button" data-preset="fiesta">Fiesta</button>
+        <button type="button" data-preset="pareja">Noche en pareja</button>
+        <button type="button" data-preset="suave">Tranqui</button>
+        <button type="button" data-preset="todo">Todo</button>
+      </div>
+      <div class="cats" id="cats"></div>
+    </section>
+
+  </div>
+  <div class="dock"><div class="in">
+    <button class="go" id="goBtn" disabled>Empezar</button>
+    <div class="why" id="why"></div>
+  </div></div>
+</main>
+
+<!-- ===================== GAME ===================== -->
+<section id="game" hidden aria-live="polite">
+  <div class="bubbles" id="bubbles"></div>
+  <div class="top">
+    <button class="rbtn" id="gBack" aria-label="Volver al menú principal">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="pill" id="catPill">Rompehielo</div>
+    <button class="rbtn" id="exitBtn" aria-label="Opciones">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="rules" id="rules"></div>
+  <div class="stage" id="stage">
+    <div class="card" id="card"><p class="txt" id="txt"></p><p class="sub" id="sub"></p></div>
+  </div>
+  <div class="bottom">
+    <button class="rbtn" id="backBtn" aria-label="Carta anterior">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    
+    <div class="count" id="count" style="text-align:center;min-width:0">1</div>
+    <button class="rbtn" id="nextBtn" aria-label="Siguiente carta">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="m7.5 4 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</section>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="box">
+    <h3>Pausa</h3>
+    <button class="pri" id="resumeBtn">Seguir jugando</button>
+    <button id="editBtn">Cambiar jugadores o modos</button>
+    <button id="reshuffleBtn">Barajar de nuevo</button>
+    <button class="warn" id="quitBtn">Terminar partida</button>
+  </div>
+</div>
+
+<div class="sheet center" id="gconfirm" hidden role="dialog" aria-modal="true" aria-labelledby="gcTitle">
+  <div class="box">
+    <h3 id="gcTitle">¿Volver al menú?</h3>
+    <p>Se va a perder la partida actual.</p>
+    <button class="pri" id="gcYes">Volver al menú</button>
+    <button id="gcNo">Seguir jugando</button>
+  </div>
+</div>
+
+<!-- ===================== KINGS CUP ===================== -->
+<section id="kings" hidden>
+  <div class="bubbles" id="kbubbles"></div>
+  <div class="top">
+    <button class="rbtn" id="kBack" aria-label="Volver al menú principal">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="crowns" id="crowns"></div>
+    <button class="rbtn" id="kMenu" aria-label="Opciones">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="kstage" id="kstage" aria-live="polite">
+    <div class="pwrap"><div class="pcard down" id="pcard"><div class="face front" id="pfront"></div><div class="face backf"><span>B</span></div></div></div>
+    <div class="rinfo" id="rinfo"><h2 class="rname" id="rname">Kings Cup</h2><p class="rdesc" id="rdesc"></p></div>
+  </div>
+  <div class="bottom">
+    <span style="width:44px"></span>
+    <div class="count"><span id="kcount">52</span> cartas</div>
+  </div>
+  <div class="kend" id="kend" hidden>
+    <h2>Se acabó el mazo</h2>
+    <button class="go" id="kAgain">Barajar de nuevo</button>
+    <button class="ghost" id="kEndHome">Menú principal</button>
+  </div>
+</section>
+
+<div class="sheet" id="ksheet" hidden>
+  <div class="box">
+    <h3>Pausa</h3>
+    <button class="pri" id="kResume">Seguir jugando</button>
+    <button class="tog" id="kTog" aria-pressed="true">Explicación<i></i></button>
+    <button id="kShuffle">Barajar de nuevo</button>
+  </div>
+</div>
+
+<!-- ===================== EL IMPOSTOR ===================== -->
+<main id="imp" hidden>
+  <div class="wrap">
+    <button class="backlink" id="impHome" type="button"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Menú</button>
+    <header class="brand"><h1>El <span>impostor</span></h1></header>
+    <section class="panel">
+      <h2>Jugadores</h2>
+      <div class="stepper">
+        <button type="button" id="impMinus" aria-label="Quitar un jugador">−</button>
+        <output id="impN" aria-live="polite">5</output>
+        <button type="button" id="impPlus" aria-label="Añadir un jugador">+</button>
+      </div>
+      <button type="button" class="tog optrow" id="impNames" aria-pressed="false"><span>Usar los nombres de Retos<small id="impNamesSub"></small></span><i></i></button>
+    </section>
+    <section class="panel">
+      <h2>Impostores</h2>
+      <div class="seg" id="impSeg"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button></div>
+    </section>
+    <section class="panel">
+      <h2>Categorías <button type="button" class="mini" id="impAll">Todas</button></h2>
+      <div class="chips" id="impCats"></div>
+    </section>
+    <section class="panel">
+      <button type="button" class="tog optrow" id="impHint" aria-pressed="true"><span>Pista para el impostor<small>Ve la categoría de la palabra</small></span><i></i></button>
+    </section>
+  </div>
+  <div class="dock"><div class="in">
+    <button class="go" id="impGo">Repartir palabras</button>
+    <div class="why" id="impWhy"></div>
+  </div></div>
+</main>
+
+<section id="impplay" hidden>
+  <div class="top">
+    <button class="rbtn" id="ipBack" aria-label="Volver al menú principal">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="pill">El impostor</div>
+    <span style="width:44px"></span>
+  </div>
+  <div class="ipstage">
+    <div class="ipview tappable" id="ipCover">
+      <p class="ipstep" id="ipStep">1 de 5</p>
+      <h2 class="ipname" id="ipName">Jugador 1</h2>
+      <p class="ipsub">Toca cuando tengas el teléfono.</p>
+      <div class="tapcue" aria-hidden="true"></div>
+      <div class="ipdots" id="ipDots"></div>
+    </div>
+    <div class="ipview" id="ipSecret" hidden>
+      <div class="secret" id="ipCard"></div>
+      <button class="go" id="ipHide">Listo, ocultar</button>
+    </div>
+    <div class="ipview" id="ipTalk" hidden>
+      <p class="ipstep">Todos tienen su palabra</p>
+      <h2 class="ipname">Empieza <span id="ipStarter"></span></h2>
+      <p class="ipsub">Por turnos, cada uno da una pista. Después voten quién es el impostor.</p>
+      <div class="ipbtns"><button class="go" id="ipReveal">Revelar impostor</button></div>
+    </div>
+    <div class="ipview" id="ipResult" hidden>
+      <p class="ipstep" id="ipResLabel">El impostor era</p>
+      <h2 class="ipname" id="ipResNames"></h2>
+      <p class="ipsub">La palabra era <b id="ipResWord"></b></p>
+      <div class="ipbtns"><button class="go" id="ipAgain">Otra ronda</button><button class="ghost" id="ipSettings">Cambiar ajustes</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ADIVINA QUIÉN SOY ===================== -->
+<main id="guess" hidden>
+  <div class="wrap">
+    <button class="backlink" id="gsHome" type="button"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Menú</button>
+    <header class="brand"><h1 class="long">Adivina quién <span>soy</span></h1></header>
+    <section class="panel">
+      <h2>Categorías <button type="button" class="mini" id="gsAll">Todas</button></h2>
+      <div class="cats" id="gsCats"></div>
+    </section>
+    <section class="panel">
+      <h2>Tiempo por turno</h2>
+      <div class="seg" id="gsSeg"><button type="button" data-v="60">60 s</button><button type="button" data-v="90">90 s</button><button type="button" data-v="120">2 min</button><button type="button" data-v="0">Sin límite</button></div>
+    </section>
+  </div>
+  <div class="dock"><div class="in">
+    <button class="go" id="gsGo">Empezar</button>
+    <div class="why" id="gsWhy"></div>
+  </div></div>
+</main>
+
+<section id="guessplay" hidden>
+  <div class="top">
+    <button class="rbtn" id="gsBack" aria-label="Volver al menú principal">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="pill" id="gsScore">0 adivinadas</div>
+    <div class="gtime" id="gsTime">1:00</div>
+    <button class="gtime" id="gsStopBtn" hidden>Terminar</button>
+  </div>
+  <div class="ipstage">
+    <div class="ipview tappable" id="gsReady">
+      <h2 class="ipname">Ponte el teléfono en la frente</h2>
+      <p class="ipsub">Los demás te dan pistas. Toca para empezar.</p>
+      <div class="tapcue" aria-hidden="true"></div>
+    </div>
+    <div class="ipview" id="gsCount" hidden><div class="gnum" id="gsNum">3</div></div>
+    <div class="ipview" id="gsPlay" hidden>
+      <p class="gscat" id="gsCat"></p>
+      <h2 class="gsname" id="gsName"></h2>
+    </div>
+    <div class="ipview" id="gsDone" hidden>
+      <p class="ipstep" id="gsEndLabel">Se acabó el tiempo</p>
+      <h2 class="ipname" id="gsEndScore"></h2>
+      <ul class="glist" id="gsList"></ul>
+      <div class="ipbtns"><button class="go" id="gsAgain">Otra ronda</button><button class="ghost" id="gsChange">Cambiar categorías</button></div>
+    </div>
+    <div class="gflash" id="gsFlash" hidden></div>
+  </div>
+  <div class="gsbtns" id="gsBtns" hidden>
+    <button class="pass" id="gsPass">Pasar</button>
+    <button class="hit" id="gsHit">¡Adivinó!</button>
+  </div>
+</section>
+
+<!-- ===================== CHOOSER ===================== -->
+<section id="chooser" hidden>
+  <canvas id="chCanvas"></canvas>
+  <div class="chint" id="chHint">
+    <div class="chdots"><i></i><i></i><i></i></div>
+    <h2>Todos pongan un dedo</h2>
+    <p id="chSub"></p>
+  </div>
+  <div class="top chtop">
+    <button class="rbtn" id="chBack" aria-label="Volver al menú">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="pill">Chooser</div>
+    <span style="width:44px"></span>
+  </div>
+</section>
+
+<script>
+/* ===================== CONTENT ===================== */
+const CATS = {
+  suave:   {n:"Rompehielo",   d:"Para empezar suave", heat:1, bg:"#1d8a78", fg:"#ffffff"},
+  risas:   {n:"Graciosos",    d:"Para hacer el ridículo", heat:1, bg:"#f2a93b", fg:"#2b1703"},
+  yonunca: {n:"Yo nunca",     d:"Toma quien lo ha hecho", heat:2, bg:"#3654d6", fg:"#ffffff"},
+  probable:{n:"¿Quién es más probable?", d:"Todos señalan a la vez", heat:2, bg:"#7a4bd8", fg:"#ffffff"},
+  verdad:  {n:"Verdad o trago", d:"Responde o bebe", heat:2, bg:"#e2553f", fg:"#ffffff"},
+  retos:   {n:"Retos",        d:"Cumple o toma", heat:2, bg:"#0f7fb3", fg:"#ffffff"},
+  temas:   {n:"Temas",        d:"Digan uno por turno", heat:1, bg:"#0e8a8a", fg:"#ffffff"},
+  prefieres:{n:"¿Qué prefieres?", d:"Voten entre dos opciones", heat:1, bg:"#c2611f", fg:"#ffffff"},
+  confesiones:{n:"Confesiones", d:"Confiesa o toma", heat:2, bg:"#4b4fae", fg:"#ffffff"},
+  parejas: {n:"Parejas",      d:"Solo para parejas", heat:2, bg:"#d93f7f", fg:"#ffffff"},
+  picante: {n:"Atrevidos +18", d:"Subido de tono", heat:3, bg:"#9e1030", fg:"#ffffff"},
+  regla:   {n:"Reglas",       d:"Duran varias rondas", heat:1, bg:"#2f9a58", fg:"#ffffff"},
+};
+const FIN = {n:"Fin de la regla", bg:"#3a3f4a", fg:"#ffffff"};
+
+const SUBS = {
+  yonunca:"Toma quien lo ha hecho.",
+  temas:"Digan uno por turno. Quien se trabe o repita, toma.",
+  prefieres:"A la cuenta de 3, todos votan. Toman los que quedaron en minoría.",
+  confesiones:"Confiesa o toma 2.",
+  probable:"A la cuenta de 3 todos señalan. El más señalado toma uno por cada dedo.",
+};
+
+const POOL = {
+suave:[
+"{A}, cuenta la anécdota más vergonzosa de tu época de colegio o toma 2 tragos.",
+"Todos los que llegaron tarde hoy toman 1 trago.",
+"{A}, elige a alguien para que brinde contigo. ¡Salud!",
+"El último en tocarse la nariz toma 2 tragos. ¡Ya!",
+"{A}, confiesa tu peor apodo de la infancia o toma 3 tragos.",
+"Todos los que tengan menos de 20% de batería toman 1 trago.",
+"{A}, imita a {B} hasta que alguien adivine. Si nadie lo hace, tomas 2.",
+"Cascada: {A} empieza a tomar y nadie puede parar hasta que pare quien está a su derecha.",
+"{A} y {B}: piedra, papel o tijera. Quien pierda toma 2.",
+"La persona más joven del grupo reparte 3 tragos.",
+"Categorías: {A} elige un tema (marcas de cerveza, futbolistas, frutas…). Por turnos digan una; quien se trabe toma 2.",
+"Todos los que fueron a la playa este año toman 1 trago.",
+"{A}, enseña la última foto de tu galería o toma 3 tragos.",
+"{A}, dile un cumplido a cada persona del grupo. Si alguien se sonroja, ese toma 1.",
+"{A}, reparte tantos tragos como hermanos tienes.",
+"Quien tenga el cumpleaños más cercano toma 2 tragos.",
+"{A} y {B} intercambian un accesorio hasta el final del juego. Quien se lo quite toma 3.",
+"{A} propone un brindis por algo ridículo. Todos toman.",
+"Todos los que trabajan o estudian mañana toman 1 trago de consuelo.",
+"{A}, di tres verdades y una mentira. Quien no adivine la mentira toma 1.",
+"{A}, ¿cuál es tu emoji más usado? Si {B} lo adivina, tú tomas 2.",
+"Todos los que hayan dormido menos de 6 horas anoche toman 1.",
+],
+risas:[
+"{A}, habla con acento argentino hasta tu próximo turno. Cada vez que se te olvide, tomas 1.",
+"{A}, tararea una canción con la boca cerrada. Si nadie la adivina, tomas 2.",
+"{A}, anuncia como presentador de noticias que {B} se quedó sin trago.",
+"{A}, describe tu película favorita de la peor forma posible. Si alguien adivina, esa persona reparte 2.",
+"{A} y {B}: duelo de miradas. Quien se ría primero toma 2.",
+"{A}, haz un comercial de 20 segundos vendiendo un zapato de {B}.",
+"Todos hablen en tercera persona hasta que {A} diga basta. Quien falle toma 1.",
+"{A}, lee en voz alta tu último mensaje enviado con voz de telenovela. O toma 3.",
+"{A}, cuenta un chiste. Si nadie se ríe, tomas 2. Si alguien se ríe, esa persona toma 1.",
+"{A}, eres un mesero de hotel cinco estrellas: sírvele un trago a {B} con presentación incluida.",
+"{A}, ponle un apodo nuevo a {B}. Todos deben usarlo hasta el final; quien se equivoque toma 1.",
+"{A}, haz tu pose de modelo más intensa durante 10 segundos.",
+"{A}, narra como documental de animales lo que está haciendo {B} ahora mismo.",
+"{A}, intenta lamerte el codo. Si no lo logras, toma 1.",
+"Concurso de sonidos de animales. Empieza {A}. El grupo elige el peor y ese toma 2.",
+"{A}, habla como robot durante las próximas 3 cartas.",
+"{A} termina todas sus frases con «mi amor» hasta su próximo turno.",
+"{A}, haz como si fueras un influencer y presenta tu trago como producto patrocinado.",
+"{A}, recrea la cara que pones cuando te llega la factura de la luz.",
+"{A}, imita la risa de {B}. Si {B} se ríe, toma 1.",
+"{A}, explica cómo hacer un sándwich como si fuera una cirugía de alto riesgo.",
+"{A} y {B} intercambian personalidades durante una ronda.",
+],
+yonunca:[
+"Yo nunca he stalkeado a mi ex a las 3 de la mañana.",
+"Yo nunca me he quedado dormido en el bus y me he pasado de parada.",
+"Yo nunca he fingido estar enfermo para no ir a algo.",
+"Yo nunca le he mandado un mensaje a la persona equivocada.",
+"Yo nunca he dicho «ya voy llegando» sin haber salido de la casa.",
+"Yo nunca me he enamorado de alguien del trabajo o la universidad.",
+"Yo nunca he llorado viendo una película animada.",
+"Yo nunca he olvidado el nombre de alguien con quien salí.",
+"Yo nunca he besado a alguien de este grupo.",
+"Yo nunca he mentido sobre mi edad.",
+"Yo nunca he dejado a alguien en visto a propósito durante días.",
+"Yo nunca he tenido una cita a ciegas.",
+"Yo nunca he roto algo en una casa ajena sin decir nada.",
+"Yo nunca he buscado mi propio nombre en Google.",
+"Yo nunca he hablado mal de alguien que está aquí.",
+"Yo nunca me he caído en público intentando verme cool.",
+"Yo nunca me he comido algo que se cayó al piso.",
+"Yo nunca he tenido un crush con un profesor.",
+"Yo nunca me he despertado sin saber dónde estaba.",
+"Yo nunca he cantado en la ducha como si estuviera en concierto.",
+"Yo nunca he escrito un mensaje borracho del que me arrepentí.",
+"Yo nunca he usado la misma ropa dos días seguidos.",
+],
+probable:[
+"¿Quién es más probable que termine casado con alguien que conoció en una app?",
+"¿Quién es más probable que se pierda en su propia ciudad?",
+"¿Quién es más probable que se haga viral por un video vergonzoso?",
+"¿Quién es más probable que llore esta noche?",
+"¿Quién es más probable que le escriba a su ex hoy?",
+"¿Quién es más probable que se gaste el salario en un solo día?",
+"¿Quién es más probable que se duerma primero?",
+"¿Quién es más probable que tenga una cuenta secreta en redes?",
+"¿Quién es más probable que se case en Las Vegas?",
+"¿Quién es más probable que adopte siete gatos?",
+"¿Quién es más probable que llegue tarde a su propia boda?",
+"¿Quién es más probable que le coquetee al mesero?",
+"¿Quién es más probable que vuelva con su ex?",
+"¿Quién es más probable que sea millonario en 10 años?",
+"¿Quién es más probable que sobreviva a un apocalipsis zombie?",
+"¿Quién es más probable que se ría en el momento menos indicado?",
+"¿Quién es más probable que termine bailando sobre una mesa?",
+"¿Quién es más probable que olvide un aniversario?",
+],
+verdad:[
+"{A}, ¿cuál es la mentira más grande que le has dicho a tus papás? Responde o toma 3.",
+"{A}, ¿quién de aquí te cae mejor y por qué? Responde o toma 2.",
+"{A}, cuenta tu peor cita o toma 3.",
+"{A}, ¿qué es lo que más te molesta de {B}? Responde o toma 3.",
+"{A}, ¿qué es lo más infantil que todavía haces? Responde o toma 2.",
+"{A}, del 1 al 10, ¿qué tan celoso eres? {B} decide si mientes. Si miente, toma 2.",
+"{A}, ¿cuál es tu crush de famoso más raro? Responde o toma 2.",
+"{A}, ¿alguna vez te ha gustado la pareja de un amigo? Responde o toma 4.",
+"{A}, ¿cuál es tu miedo más irracional? Responde o toma 2.",
+"{A}, ¿qué opinas de verdad del outfit de {B} hoy? Responde o toma 2.",
+"{A}, ¿cuándo fue la última vez que lloraste y por qué? Responde o toma 3.",
+"{A}, ¿qué app escondes si alguien revisa tu celular? Responde o toma 3.",
+"{A}, ¿a quién de aquí llamarías a las 3 a. m. si te meten en problemas? Responde o toma 2.",
+"{A}, ¿cuál fue tu peor beso? Sin nombres. Responde o toma 3.",
+"{A}, ¿qué es lo más vergonzoso en tu historial de búsqueda? Responde o toma 4.",
+"{A}, ¿a quién de este grupo le contarías un secreto y a quién nunca? Responde o toma 3.",
+"{A}, ¿cuál es el último chisme que te contaron? Responde o toma 2.",
+"{A}, ¿qué es algo que nunca le has dicho a {B}? Responde o toma 3.",
+],
+retos:[
+"{A}, haz 10 sentadillas mientras todos cuentan. Si fallas, toma 2.",
+"{A}, deja que {B} te peine como quiera. O toma 3.",
+"{A}, llama a alguien y cántale «Cumpleaños feliz». O toma 3.",
+"{A}, haz un brindis emotivo por {B} como si fuera su boda.",
+"{A}, haz una plancha de 30 segundos. Si no aguantas, toma 2.",
+"{A}, no puedes decir «sí» ni «no» hasta tu próximo turno. Cada error, 1 trago.",
+"{A}, deja que el grupo elija tu foto de perfil durante 1 hora o toma 4.",
+"{A}, baila 20 segundos sin música.",
+"{A}, intenta hacer reír a {B} en 30 segundos. Si lo logras, {B} toma 2; si no, tú.",
+"{A}, recita el abecedario al revés. Cada error, 1 trago.",
+"{A} y {B}: batalla de rap de cuatro versos. El grupo elige al perdedor y toma 2.",
+"{A}, sostén la mirada de {B} durante 15 segundos diciendo «te amo» con total seriedad.",
+"{A}, dale tu trago a {B}. {B} decide si te lo devuelve o se lo toma.",
+"{A}, escribe tu nombre en el celular usando la nariz. Cada error, 1 trago.",
+"{A}, quédate en una pierna hasta tu próximo turno. Si pierdes el equilibrio, toma 2.",
+"{A}, deja que {B} mande un emoji (uno solo) a tu último chat. O toma 3.",
+"{A}, haz la mejor imitación de un cantante famoso. Si el grupo no adivina, toma 2.",
+"{A}, tienes 10 segundos para nombrar 5 cosas rojas. Si no lo logras, toma 2.",
+"{A}, da un discurso de 20 segundos sobre por qué {B} debería ser presidente.",
+"{A}, toma tu siguiente trago con la mano contraria y con el meñique arriba.",
+],
+parejas:[
+"{P1} y {P2}: digan al mismo tiempo el color favorito del otro. Si fallan, toman 2 cada uno.",
+"{P1}, ¿dónde fue la primera cita con {P2}? Si {P2} no está de acuerdo, los dos toman.",
+"{P1}, dale a {P2} un beso donde el grupo elija: mejilla, mano o frente.",
+"{P1} y {P2}: ¿quién dijo «te quiero» primero? A la cuenta de 3 se señalan. Si no coinciden, toman 2.",
+"{P1}, imita a {P2} cuando está de mal humor. {P2} califica del 1 al 10; menos de 5 y {P1} toma.",
+"{P2}, cuenta la manía más rara de {P1}. Si {P1} lo niega, toma 2.",
+"{P1} y {P2}: tomen un trago con los brazos entrelazados.",
+"{P1}, dile a {P2} tres cosas que te encantan de su persona, mirándole a los ojos.",
+"{P1} y {P2}: ¿quién es más celoso? Señálense a la vez. El señalado toma.",
+"{P2}, ¿cuál fue tu primera impresión de {P1}? Con honestidad o toma 3.",
+"{P1} y {P2}: bailen lento 30 segundos mientras el grupo tararea.",
+"{P1}, adivina qué pediría {P2} en su restaurante favorito. Si fallas, toma 2.",
+"{P1} y {P2}: digan a la vez cuál es «su canción». Si no coinciden, ambos toman 2.",
+"{P2}, dale un masaje de hombros a {P1} hasta la próxima carta de parejas.",
+"{P1} y {P2}: quien ronque más toma 2. Decidan rápido.",
+"{P2}, besa a {P1} como si fuera la escena final de una película.",
+"{P1} y {P2}: ¿quién manda en la relación? El grupo vota y el elegido reparte 3 tragos.",
+"{P1} y {P2}: describan la cita perfecta en 3 palabras cada uno. Si no coinciden en ninguna, ambos toman.",
+"{P2}, ¿qué apodo cursi le dices a {P1} en privado? Dilo o toma 3.",
+"{P1} y {P2}: quien tarde más arreglándose para salir toma 2.",
+"{P2}, recrea con {P1} la pose de su primera foto juntos.",
+"{P1}, ¿cuál fue el mejor regalo que te dio {P2}? Si {P2} esperaba otra respuesta, toma 1.",
+"{P1} y {P2}: ¿quién pide perdón primero después de una pelea? Señálense. El señalado reparte 2.",
+"{P1}, haz una propuesta de matrimonio dramática a {P2}. El grupo califica; si es menos de 7, tomas 2.",
+"{P1} y {P2}: ¿cuál fue su primera pelea? Cuéntenla o tomen 2 cada uno.",
+"{P2}, dale de tomar a {P1} de tu vaso, como en un brindis de boda.",
+],
+picante:[
+"{A}, ¿cuál es el lugar más raro donde te has besado con alguien? Responde o toma 3.",
+"{A}, describe tu tipo ideal usando solo a personas de este grupo como referencia.",
+"{A}, susurra al oído de {B} algo atrevido. {B} decide si cuenta; si no, tomas 3.",
+"Todos los que alguna vez enviaron una foto atrevida toman 2.",
+"{A}, ¿quién de aquí besaría mejor? Señala o toma 3.",
+"{A}, baila sensual 15 segundos para {B} o toma 4.",
+"{A}, cuenta tu fantasía más inconfesable en una sola frase o toma 4.",
+"Toma 2 quien haya hecho algo atrevido dentro de un carro.",
+"{A}, ¿qué es lo primero que notas de alguien que te atrae?",
+"{A}, describe tu último beso en 3 palabras o toma 2.",
+"{A} y {B}: 30 segundos de contacto visual a 10 cm sin reírse. Quien se ría toma 3.",
+"{A}, quítate una prenda (los accesorios cuentan) o toma 3.",
+"{A}, ¿con quién de aquí tendrías una cita? Responde o toma 4.",
+"{P1} y {P2}: beso de 10 segundos. El grupo cuenta en voz alta.",
+"{P1}, susúrrale a {P2} lo que harías esta noche. {P2} califica: menos de 7 y tomas 2.",
+"{P2}, ¿qué parte del cuerpo de {P1} te gusta más? Dila o toma 3.",
+"{P1} y {P2}: del 1 al 10, ¿qué tan arriesgado ha sido el lugar más atrevido donde han estado juntos? Muestren el número con los dedos a la vez.",
+"{A}, escríbele «Hola, ¿qué haces?» a tu crush o a tu ex. O toma 5.",
+"{A}, ¿cuántas personas has besado este año? Si dudas más de 3 segundos, toma 2.",
+"{P1}, quítate un solo calcetín para {P2} con toda la sensualidad posible.",
+"Toma 2 quien haya tenido un sueño subido de tono con alguien de aquí.",
+"{A}, ¿cuál es tu mayor turn-on? Responde o toma 3.",
+"{P2}, dale a {P1} un beso en el cuello. O los dos toman 2.",
+"{A}, si tuvieras que besar a alguien de aquí ahora mismo, ¿a quién? Responde o toma 4.",
+"{P1} y {P2}: ¿quién es más atrevido en la intimidad? Señálense a la vez. El señalado toma 2.",
+"{A}, ¿cuál es la peor excusa que has usado para irte de una cita? Responde o toma 2.",
+],
+regla:[
+["{A} es el rey del pulgar: cuando ponga el pulgar en la mesa, todos deben hacerlo. El último toma 1.","{A} ya no es el rey del pulgar."],
+["Prohibido decir nombres. Quien diga uno toma 1.","Ya pueden decir nombres otra vez."],
+["{A} es el bufón: quien se ría de sus chistes toma 1.","{A} dejó de ser el bufón."],
+["Prohibido decir «tomar» y «trago». Cada error, 1 trago.","Ya pueden decir «tomar» y «trago»."],
+["Todos deben tomar con la mano izquierda. Quien use la derecha toma otra vez.","Ya pueden tomar con cualquier mano."],
+["{A} y {B} son gemelos: cuando uno toma, el otro también.","{A} y {B} ya no son gemelos."],
+["Antes de tomar hay que gritar «¡Pura vida!». Quien lo olvide toma otra vez.","Ya no hace falta gritar «¡Pura vida!»."],
+["{A} es quien pregunta: si alguien le responde una pregunta, toma 1.","{A} ya no hace preguntas trampa."],
+["Prohibido señalar con el dedo. Señalen con el codo o tomen 1.","Ya pueden señalar con el dedo."],
+["{P1} y {P2} deben estar de la mano. Si se sueltan, toman 2.","{P1} y {P2} ya pueden soltarse."],
+["{A} es el mesero: solo {A} puede servir bebidas.","{A} ya no es el mesero."],
+["Cada mala palabra cuesta 1 trago.","Las malas palabras vuelven a ser gratis."],
+],
+};
+
+const MORE = {
+suave:[
+"{A}, ¿cuál fue tu primer trabajo? Si nadie lo sabía, reparte 2.",
+"Todos los que tienen mascota toman 1. Quien tenga más de una, reparte 1.",
+"{A}, ¿qué canción pondrías en tu propio funeral?",
+"El grupo elige quién trae los zapatos más sucios. Esa persona toma 1.",
+"{A}, di el nombre de todos los presentes en orden alfabético en 10 segundos. Si fallas, toma 2.",
+"Todos los que han vivido en otro país toman 1.",
+"{A}, ¿cuál es tu comida para cuando estás triste? Si {B} adivina, tomas tú. Si no, toma {B}.",
+"Quien llegó primero a la fiesta toma 2 por puntual.",
+"{A}, si pudieras cenar con cualquier persona, viva o muerta, ¿con quién sería?",
+"Todos los que usan lentes toman 1.",
+"{A}, ¿cuál es la peor serie que te viste completa? Responde o toma 2.",
+"{A} y {B}: el que tenga más apps abiertas en el celular toma 2.",
+"Todos los que usan la cuenta de Netflix de otra persona toman 1.",
+"{A}, ¿cuál es tu talento más inútil? Si lo demuestras, reparte 3.",
+"La persona con el cumpleaños más lejano toma 2.",
+"{A}, lee el último mensaje que le mandaste a tu mamá o toma 2.",
+"Quien no haya cenado se toma un vaso de agua. En serio.",
+"{A}, ¿a qué edad crees que vas a tener la vida resuelta? El grupo vota si es realista.",
+"{A}, cuenta el peor regalo que te han dado o toma 2.",
+"Todos los que tienen tatuajes toman 1. Quien enseñe el suyo, reparte 1.",
+"{A}, ¿qué es lo que más te gusta de la persona a tu izquierda?",
+"Todos los que fueron al gimnasio esta semana toman 1. Los demás también, por solidaridad.",
+"{A}, ¿cuál fue la mejor decisión que tomaste este año?",
+"{A}, describe tu día en tres palabras.",
+"Todos los que fueron a un concierto este año toman 1.",
+"{A}, ¿café o té? Los que piensen igual toman 1.",
+"{A}, ¿qué serie le recomiendas a todos? Quien ya la haya visto, toma 1.",
+"Quien se sepa el número de cédula de memoria toma 1.",
+"{A}, ¿qué harías mañana con un millón de dólares? Tienes 10 segundos.",
+"Quien tenga el celular más viejo reparte 2.",
+],
+risas:[
+"{A}, véndele tu celular a {B} como si fuera una antigüedad.",
+"{A}, solo puedes hablar con preguntas hasta tu próximo turno. Cada error, 1 trago.",
+"{A}, baila el TikTok de moda que te sepas. Si no sabes ninguno, inventa uno.",
+"{A}, narra un gol como comentarista de fútbol. El gol lo mete {B}.",
+"{A}, eres guía turístico. Presenta esta casa como si fuera un museo.",
+"{A}, actúa como si te acabaras de ganar la lotería. Si el grupo te da menos de 6, tomas.",
+"{A}, di «tres tristes tigres tragaban trigo en un trigal» tres veces rápido. Cada error, 1 trago.",
+"{A}, imita a un profesor que todos conozcan. Si nadie adivina, toma 2.",
+"{A}, pide una pizza imaginaria por teléfono con voz de villano.",
+"{A}, cuenta cómo conociste a {B} como si fuera una película de terror.",
+"{A} y {B}: hagan la escena de telenovela donde uno descubre que el otro le fue infiel con la vecina.",
+"{A}, eres un perro. Pídele comida a {B} sin hablar.",
+"{A}, con voz de locutor de radio de los 90, anuncia la próxima canción.",
+"{A}, explícale qué es Internet a alguien que vive en 1800.",
+"{A}, haz un comercial de champú de 15 segundos.",
+"{A}, deletrea tu nombre con un animal por cada letra. Si te trabas, toma 1.",
+"{A}, saluda a todos como si fueras un político en campaña.",
+"{A}, entrevista a {B} para el puesto de mejor amigo.",
+"{A}, imita tu propio llanto. Si el grupo no se lo cree, toma 1.",
+"{A}, actúa una película sin hablar. Quien adivine reparte 2. Si nadie adivina, tomas 2.",
+"{A}, describe a {B} como si fuera un plato de un restaurante caro.",
+"{A}, inventa una banda con las iniciales de {B} y canta su gran éxito.",
+"{A}, eres un GPS. Lleva a {B} hasta la cocina con instrucciones exageradas.",
+"{A}, pon cara de foto de pasaporte y no la cambies hasta que alguien se ría.",
+"{A}, escribe en voz alta una reseña de una estrella del último lugar donde comiste.",
+"{A}, cruza la sala caminando como modelo de pasarela.",
+"{A}, susúrrale a {B} un chisme inventado. {B} lo cuenta en voz alta y exagerado.",
+"{A}, dile a {B} el peor piropo que se te ocurra. Si {B} se ríe, toma 1.",
+"{A}, eres el del clima. Da el pronóstico de esta fiesta.",
+"{A}, imita a alguien del grupo cuando está borracho. Esa persona toma 1.",
+],
+yonunca:[
+"Yo nunca me he dormido en una clase o en una reunión.",
+"Yo nunca he salido de la casa con la ropa al revés.",
+"Yo nunca he reenviado una cadena de WhatsApp.",
+"Yo nunca he fingido entender una conversación para no quedar mal.",
+"Yo nunca he usado el cepillo de dientes de otra persona.",
+"Yo nunca me he colado en una fila.",
+"Yo nunca he perdido un vuelo.",
+"Yo nunca he ido a trabajar o a clases con goma.",
+"Yo nunca he terminado con alguien por mensaje.",
+"Yo nunca he leído los mensajes de alguien sin permiso.",
+"Yo nunca he regalado algo que me regalaron a mí.",
+"Yo nunca he copiado en un examen.",
+"Yo nunca he cantado karaoke en público.",
+"Yo nunca he tenido perfil en una app de citas.",
+"Yo nunca he dicho «te amo» sin sentirlo.",
+"Yo nunca le he dicho «mamá» a una profesora.",
+"Yo nunca me he quedado encerrado en un baño.",
+"Yo nunca he manejado sin licencia.",
+"Yo nunca he ido a una fiesta sin que me invitaran.",
+"Yo nunca le he hecho ghosting a alguien.",
+"Yo nunca he roto la pantalla del celular.",
+"Yo nunca he subido una historia y la he borrado a los 5 minutos.",
+"Yo nunca he fingido una llamada para evitar a alguien.",
+"Yo nunca he tenido un apodo que odio.",
+"Yo nunca he salido con dos personas al mismo tiempo.",
+"Yo nunca me he pintado el pelo de un color loco.",
+"Yo nunca he vomitado en el carro de alguien.",
+"Yo nunca he ido al cine solo.",
+"Yo nunca he olvidado el cumpleaños de mi mejor amigo.",
+"Yo nunca he dicho que estaba en camino mientras me bañaba.",
+],
+probable:[
+"¿Quién es más probable que termine viviendo en otro país?",
+"¿Quién es más probable que olvide dónde dejó el carro?",
+"¿Quién es más probable que se pelee con un desconocido en redes?",
+"¿Quién es más probable que llegue una hora tarde a la fiesta?",
+"¿Quién es más probable que se ría de su chiste antes de terminarlo?",
+"¿Quién es más probable que adopte un perro sin preguntarle a nadie?",
+"¿Quién es más probable que tenga hijos antes de los 30?",
+"¿Quién es más probable que se vuelva influencer?",
+"¿Quién es más probable que llame a su ex «por error»?",
+"¿Quién es más probable que se pierda en un aeropuerto?",
+"¿Quién es más probable que llore en una boda?",
+"¿Quién es más probable que se duerma en el cine?",
+"¿Quién es más probable que diga «una más y me voy» y se quede hasta el final?",
+"¿Quién es más probable que termine en la cárcel por algo ridículo?",
+"¿Quién es más probable que compre algo carísimo que no necesita?",
+"¿Quién es más probable que gane un reality show?",
+"¿Quién es más probable que se enamore en un viaje?",
+"¿Quién es más probable que deje el celular en un Uber?",
+"¿Quién es más probable que olvide el nombre de alguien a los 5 minutos de conocerlo?",
+"¿Quién es más probable que tenga una planta muerta en la casa?",
+"¿Quién es más probable que conteste un mensaje una semana después?",
+"¿Quién es más probable que salga en las noticias?",
+"¿Quién es más probable que escriba un libro?",
+"¿Quién es más probable que devuelva un plato en un restaurante?",
+"¿Quién es más probable que se haga un tatuaje del que se arrepienta?",
+"¿Quién es más probable que tenga 20 alarmas en el celular?",
+"¿Quién es más probable que se quede sin plata a mitad de mes?",
+"¿Quién es más probable que grite más en un concierto?",
+"¿Quién es más probable que se case primero?",
+"¿Quién es más probable que termine siendo el jefe de todos aquí?",
+"¿Quién es más probable que se vaya de la fiesta sin despedirse?",
+"¿Quién es más probable que sobreviva solo en una isla desierta?",
+],
+verdad:[
+"{A}, ¿cuál es el chisme más grande que te has guardado? Sin nombres. Responde o toma 3.",
+"{A}, ¿qué es lo que más te arrepientes de haberle dicho a alguien? Responde o toma 3.",
+"{A}, enseña cuánto tiempo pasaste hoy en el celular o toma 2.",
+"{A}, ¿qué opinas de verdad de la última pareja de {B}? Responde o toma 3.",
+"{A}, ¿alguna vez dijiste que estabas ocupado para no salir con alguien de aquí? Responde o toma 3.",
+"{A}, ¿qué es lo más caro que has roto? Responde o toma 2.",
+"{A}, ¿cuál es tu mayor inseguridad? Responde o toma 3.",
+"{A}, ¿quién fue tu primer amor? Responde o toma 2.",
+"{A}, ¿qué mentira has dicho en esta fiesta? Responde o toma 3.",
+"{A}, ¿qué harías si supieras que {B} habla mal de ti? Responde o toma 2.",
+"{A}, ¿cuál es tu placer culposo? Responde o toma 2.",
+"{A}, ¿qué es algo que nunca les contarías a tus papás? Responde o toma 4.",
+"{A}, ¿a quién de aquí le copiarías el estilo? Responde o toma 2.",
+"{A}, ¿cuál es la peor decisión que has tomado borracho? Responde o toma 3.",
+"{A}, ¿qué mensaje tuyo te daría más vergüenza que todos leyeran? Responde o toma 3.",
+"{A}, ¿qué pensabas de {B} antes de conocerle bien? Responde o toma 2.",
+"{A}, ¿qué finges que te gusta? Responde o toma 2.",
+"{A}, del 1 al 10, ¿qué tan bien te cae {B}? Responde o toma 3.",
+"{A}, ¿cuál es tu mayor red flag? Responde o toma 2.",
+"{A}, ¿qué te dijo alguien que nunca olvidaste? Responde o toma 2.",
+"{A}, ¿cuándo fue la última vez que mentiste y a quién? Responde o toma 3.",
+"{A}, ¿cuál es la razón más ridícula por la que has llorado? Responde o toma 2.",
+"{A}, ¿qué es lo peor que has hecho en una relación? Responde o toma 4.",
+"{A}, si pudieras cambiar una cosa de {B}, ¿cuál sería? Responde o toma 3.",
+"{A}, ¿cuál es tu opinión impopular más fuerte? Responde o toma 2.",
+"{A}, ¿de qué te has quejado más este año? Responde o toma 1.",
+"{A}, ¿con quién de aquí te irías un mes de viaje y con quién nunca? Responde o toma 3.",
+"{A}, del 1 al 10, ¿cuánto stalkeas a tus ex? Responde o toma 2.",
+"{A}, ¿qué sueño no le has contado a nadie? Responde o toma 2.",
+"{A}, ¿de qué estás más orgulloso? Responde o toma 1.",
+"{A}, ¿quién de aquí crees que guarda más secretos? Responde o toma 2.",
+"{A}, ¿alguna vez te gustó alguien que ni sabía que existías? Responde o toma 2.",
+],
+retos:[
+"{A}, deja que {B} te dibuje algo en la mano con lapicero. O toma 3.",
+"{A}, haz 15 segundos de beatbox.",
+"{A}, cambia de lugar con {B} y quédate ahí hasta el final.",
+"{A}, habla sin mover los labios hasta tu próximo turno. Cada error, 1 trago.",
+"{A}, imita un emoji. Si nadie adivina cuál es, toma 2.",
+"{A}, haz 5 lagartijas. Si no puedes, toma 2.",
+"{A}, ponte una prenda de {B} hasta tu próximo turno.",
+"{A}, deja que {B} publique un estado en tu WhatsApp. O toma 4.",
+"{A}, cuenta del 1 al 20 sin decir los múltiplos de 3. Si fallas, toma 2.",
+"{A}, di 10 países en 15 segundos. Si no lo logras, toma 2.",
+"{A}, sostén un vaso vacío en la cabeza durante 10 segundos.",
+"{A}, llama a alguien de tus contactos y dile que lo extrañas. O toma 3.",
+"{A}, cántale a {B} una serenata de 15 segundos.",
+"{A}, haz tu mejor paso de baile. Todos lo copian y el que lo haga peor toma 1.",
+"{A}, quítate los zapatos hasta el final del juego o toma 2.",
+"{A}, dale tu celular desbloqueado a {B} durante 30 segundos. O toma 4.",
+"{A}, haz una pose de yoga y mantenla hasta la próxima carta.",
+"{A}, describe a {B} con una palabra por cada letra de tu nombre.",
+"{A}, imita a un animal hasta que alguien adivine cuál es.",
+"{A}, haz un brindis en inglés con tu mejor acento.",
+"{A}, da tres vueltas sobre ti y luego camina en línea recta.",
+"{A}, tienes 20 segundos para hacer reír a todos. Si nadie se ríe, toma 2.",
+"{A}, manda un audio de 5 segundos cantando al chat de tu familia. O toma 4.",
+"{A}, presenta a {B} como si fuera a subir a un ring de boxeo.",
+"{A}, deja que {B} te maquille un poco. O toma 3.",
+"{A}, canta el himno nacional sin equivocarte. Si fallas, toma 2.",
+"{A}, toma tu siguiente trago parado en una pierna.",
+"{A}, pon el celular en otro idioma por el resto de la noche. O toma 3.",
+"{A}, {B} te hace una pregunta y solo puedes responder cantando.",
+"{A}, deja que el grupo te ponga un apodo nuevo en tus contactos de WhatsApp. O toma 3.",
+],
+prefieres:[
+"¿Qué prefieres: cantar todo lo que dices o bailar cada vez que suena música?",
+"¿Qué prefieres: que tu historial de búsqueda sea público o que tus papás lean todos tus chats?",
+"¿Qué prefieres: oler siempre a ajo o tener hipo para siempre?",
+"¿Qué prefieres: no volver a usar redes sociales o no volver a comer pizza?",
+"¿Qué prefieres: tener dedos de salchicha o pies de pato?",
+"¿Qué prefieres: volar, pero solo a un metro del suelo, o ser invisible, pero solo cuando nadie te mira?",
+"¿Qué prefieres: que tu ex sea tu jefe o que tu jefe sea tu suegro?",
+"¿Qué prefieres: ganarte la lotería sin poder contárselo a nadie o ser famoso y estar en quiebra?",
+"¿Qué prefieres: decir todo lo que piensas o no volver a hablar nunca?",
+"¿Qué prefieres: pelear contra 100 patos del tamaño de un pollito o contra un pollito del tamaño de un caballo?",
+"¿Qué prefieres: vivir en una casa sin baño o en una casa sin cocina?",
+"¿Qué prefieres: que te pillen cantando en la ducha o hablando solo en la calle?",
+"¿Qué prefieres: tener para siempre la voz de Bad Bunny o la de un locutor de noticias?",
+"¿Qué prefieres: comer solo comida fría o solo comida picante el resto de tu vida?",
+"¿Qué prefieres: que tu vida sea un reality show o un musical?",
+"¿Qué prefieres: un botón para pausar el tiempo o uno para regresar 10 segundos?",
+"¿Qué prefieres: ir a la boda de tu ex o que tu ex vaya a la tuya?",
+"¿Qué prefieres: ser 10 centímetros más alto o 10 años más joven?",
+"¿Qué prefieres: olvidar el nombre de tu pareja en la boda o tropezarte llegando al altar?",
+"¿Qué prefieres: hablar con los animales o hablar todos los idiomas?",
+"¿Qué prefieres: que tu mamá vea tu historial o que tu jefe vea tus historias privadas?",
+"¿Qué prefieres: no volver a tomar café o no volver a tomar alcohol?",
+"¿Qué prefieres: ser el más inteligente de un grupo de tontos o el más tonto de un grupo de genios?",
+"¿Qué prefieres: dormir siempre con calcetines mojados o con arena en la cama?",
+"¿Qué prefieres: que todo lo que comas sepa a brócoli o que todo lo que tomes sepa a agua tibia?",
+"¿Qué prefieres: un clon que vaya a trabajar por ti o un robot que limpie tu casa?",
+"¿Qué prefieres: vivir en la playa sin aire acondicionado o en la montaña sin agua caliente?",
+"¿Qué prefieres: el celular siempre con 10% de batería o siempre con la pantalla quebrada?",
+"¿Qué prefieres: leer mentes sin poder apagarlo o ver el futuro sin poder cambiarlo?",
+"¿Qué prefieres: ser famoso por algo vergonzoso o ser un desconocido para siempre?",
+"¿Qué prefieres: viajar al pasado o al futuro, sabiendo que no puedes volver?",
+"¿Qué prefieres: el doble de salario en un trabajo aburrido o la mitad en tu trabajo soñado?",
+"¿Qué prefieres: ir a todas partes en patineta o a caballo?",
+"¿Qué prefieres: compartir cepillo de dientes con un desconocido o usar la ropa interior de un amigo?",
+"¿Qué prefieres: reírte como un delfín o estornudar como un grito?",
+"¿Qué prefieres: vivir 200 años con cara de viejo o 50 años con cara de 20?",
+"¿Qué prefieres: que te despierten con un balde de agua fría o con la alarma de incendios?",
+"¿Qué prefieres: cenar con tu peor enemigo o con tu ex y su nueva pareja?",
+"¿Qué prefieres: no volver a usar emojis o tener que poner cinco en cada mensaje?",
+"¿Qué prefieres: un perro que habla pero solo dice groserías o un gato que te juzga en silencio?",
+"¿Qué prefieres: perder todas tus fotos o todos tus contactos?",
+"¿Qué prefieres: ser el mejor de un equipo malo o el peor de un equipo campeón?",
+"¿Qué prefieres: una primera cita en un funeral o en la casa de tus papás?",
+"¿Qué prefieres: bailar cada vez que alguien dice tu nombre o aplaudir cada vez que alguien dice «sí»?",
+"¿Qué prefieres: andar siempre con un poquito de hambre o siempre con un poquito de sueño?",
+"¿Qué prefieres: teletransportarte, pero solo a lugares donde ya estuviste, o volar, pero a 10 km/h?",
+"¿Qué prefieres: tener tu canción favorita pegada en la cabeza todo el día o no poder escucharla nunca más?",
+"¿Qué prefieres: ser un Pokémon o un personaje de Los Simpson?",
+"¿Qué prefieres: un viaje gratis con tu suegra o pagar el viaje completo tú solo?",
+"¿Qué prefieres: hacer el ridículo en televisión nacional o en la boda de tu mejor amigo?",
+"¿Qué prefieres: no volver a ver series o no volver a escuchar música?",
+"¿Qué prefieres: que tu pareja lea tus chats o leer tú los de tu pareja?",
+],
+confesiones:[
+"{A}, ¿qué es lo más raro que has hecho estando solo en tu casa?",
+"{A}, si te pagaran un millón de dólares por sacar a alguien de este grupo de tu vida, ¿a quién sería?",
+"{A}, ¿cuál es la mentira que más has repetido?",
+"{A}, ¿qué es lo más vergonzoso que te ha pasado en un baño público?",
+"{A}, ¿alguna vez culpaste a otra persona de algo que hiciste tú? ¿Qué fue?",
+"{A}, si desaparecieras una semana sin avisar, ¿quién sería el último en darse cuenta?",
+"{A}, ¿en qué es lo más tonto que has gastado plata?",
+"{A}, ¿a quién de aquí stalkeaste antes de conocerle en persona?",
+"{A}, ¿qué canción cantas a escondidas porque te da vergüenza?",
+"{A}, si pudieras leer los chats de alguien de aquí, ¿de quién serían?",
+"{A}, ¿cuál fue tu peor corte de pelo y quién tuvo la culpa?",
+"{A}, ¿qué cosa prestada has tardado más en devolver?",
+"{A}, ¿alguna vez fingiste estar enfermo y te pillaron?",
+"{A}, ¿tienes un apodo secreto para alguien de aquí? ¿Cuál?",
+"{A}, ¿qué harías si un día te despertaras siendo {B}?",
+"{A}, ¿cuál es el lugar más raro donde te has quedado dormido?",
+"{A}, ¿a qué ex le escribirías esta noche si nadie se fuera a enterar?",
+"{A}, ¿qué dijiste que sabías hacer sin tener ni idea?",
+"{A}, ¿cuál fue tu fase más vergonzosa de la adolescencia?",
+"{A}, ¿qué te has comido del refri de otra persona sin permiso?",
+"{A}, si tuvieras que casarte con alguien de este grupo para salvar al mundo, ¿con quién?",
+"{A}, ¿qué foto tuya rogarías que nadie viera nunca?",
+"{A}, ¿qué cosa de niño te sigue dando miedo?",
+"{A}, ¿qué es lo que más te ha costado perdonar?",
+"{A}, ¿alguna vez leíste el diario o las notas de otra persona?",
+"{A}, ¿cuál ha sido tu momento más incómodo con los papás de alguien?",
+"{A}, si tuvieras 24 horas sin ninguna consecuencia, ¿qué harías?",
+"{A}, ¿cuándo fue la última vez que lloraste por algo que viste en el celular?",
+"{A}, ¿a quién de aquí le tienes envidia y por qué?",
+"{A}, ¿qué secreto de tu infancia nunca le contaste a tu familia?",
+"{A}, ¿qué es lo más ridículo que has hecho por un like?",
+"{A}, ¿cuál fue tu peor mensaje de borracho?",
+"{A}, ¿alguna vez cambiaste de opinión solo para quedar bien con alguien? ¿Con quién?",
+"{A}, ¿cuál es tu peor hábito cuando nadie te ve?",
+"{A}, si pudieras repetir una conversación y cambiar lo que dijiste, ¿cuál sería?",
+"{A}, ¿qué cosa ilegal pero inofensiva has hecho?",
+"{A}, ¿a quién de este grupo no le prestarías plata?",
+"{A}, ¿cuál es la excusa más elaborada que has inventado?",
+"{A}, ¿qué te dijo {B} alguna vez que te molestó y nunca le contaste?",
+"{A}, ¿qué fue lo primero que pensaste de {B}?",
+"{A}, si fueras invisible un día, ¿a dónde entrarías primero?",
+"{A}, ¿qué es lo más vergonzoso que hay en tu celular ahora mismo?",
+"{A}, ¿qué película dices que viste pero nunca viste?",
+"{A}, ¿qué regalo fingiste que te encantó?",
+"{A}, ¿alguna vez te tomaste una foto con algo que no era tuyo para presumir?",
+"{A}, ¿qué rompiste en la casa de tus papás que nunca confesaste?",
+"{A}, ¿por qué famoso harías el ridículo en público?",
+"{A}, ¿qué es lo peor que has dicho de alguien que está aquí?",
+"{A}, si pudieras cambiar de vida con alguien de aquí por un mes, ¿con quién sería?",
+"{A}, ¿qué te da vergüenza de tu forma de ser?",
+"{A}, ¿qué haces que juras que nadie más hace?",
+"{A}, ¿qué es lo más desesperado que has hecho para llamar la atención de alguien?",
+],
+temas:[
+"Marcas de carros. Empieza {A}.",
+"Países de Europa. Empieza {A}.",
+"Equipos de fútbol. Empieza {A}.",
+"Frutas. Empieza {A}.",
+"Marcas de cerveza. Empieza {A}.",
+"Películas de Disney o Pixar. Empieza {A}.",
+"Cantantes de reguetón. Empieza {A}.",
+"Películas de terror. Empieza {A}.",
+"Apps que tienes en el celular. Empieza {A}.",
+"Razas de perros. Empieza {A}.",
+"Cosas que hay en una cocina. Empieza {A}.",
+"Capitales del mundo. Empieza {A}.",
+"Superhéroes. Empieza {A}.",
+"Marcas de ropa. Empieza {A}.",
+"Series de Netflix. Empieza {A}.",
+"Instrumentos musicales. Empieza {A}.",
+"Comidas típicas de Latinoamérica. Empieza {A}.",
+"Deportes. Empieza {A}.",
+"Animales del mar. Empieza {A}.",
+"Cocteles. Empieza {A}.",
+"Cosas que llevas a la playa. Empieza {A}.",
+"Profesiones. Empieza {A}.",
+"Pokémon. Empieza {A}.",
+"Marcas de celulares. Empieza {A}.",
+"Personajes de Los Simpson. Empieza {A}.",
+"Partes del cuerpo. Empieza {A}.",
+"Canciones de los 2000. Empieza {A}.",
+"Juegos de mesa. Empieza {A}.",
+"Videojuegos. Empieza {A}.",
+"Dulces y golosinas. Empieza {A}.",
+"Ciudades de Estados Unidos. Empieza {A}.",
+"Excusas para no ir a trabajar. Empieza {A}.",
+"Cosas que no dirías en una primera cita. Empieza {A}.",
+"Animales de la selva. Empieza {A}.",
+"Verduras. Empieza {A}.",
+"Palabras en inglés que usamos en español. Empieza {A}.",
+"Cadenas de comida rápida. Empieza {A}.",
+"Actores de Hollywood. Empieza {A}.",
+"Lugares para una primera cita. Empieza {A}.",
+"Cosas que siempre se pierden. Empieza {A}.",
+"Nombres de mujer que terminan en «a». Empieza {A}.",
+"Personajes de Harry Potter. Empieza {A}.",
+"Marcas de maquillaje. Empieza {A}.",
+"Equipos de la NBA. Empieza {A}.",
+"Bailes. Empieza {A}.",
+"Palabras que rimen con «amor». Empieza {A}.",
+"Cosas que se hacen con los ojos cerrados. Empieza {A}.",
+"Marcas de tenis. Empieza {A}.",
+"Banderas con el color rojo. Empieza {A}.",
+"Cosas que hay en un hospital. Empieza {A}.",
+"Palabras que empiecen con «ch». Empieza {A}.",
+"Bandas de rock. Empieza {A}.",
+],
+parejas:[
+"{P1} y {P2}: revisen quién tiene más fotos del otro en el celular. Quien tenga menos toma 2.",
+"{P2}, ¿qué es lo que más te molesta de {P1}? Con cariño. Responde o toma 2.",
+"{P1} y {P2}: digan a la vez la fecha de su aniversario. Si no coinciden, toman 2 cada uno.",
+"{P1}, cuenta cómo le pediste a {P2} que fueran novios. {P2} corrige lo que no fue así.",
+"{P1} y {P2}: ¿quién se enoja más rápido? Señálense. El señalado toma.",
+"{P2}, ¿qué serie ven juntos que en realidad no te gusta? Responde o toma 2.",
+"{P1}, dile a {P2} qué pensaste la primera vez que le viste.",
+"{P1} y {P2}: ¿quién cocina mejor? El grupo vota y el perdedor toma 2.",
+"{P2}, imita a {P1} cuando tiene hambre.",
+"{P1} y {P2}: cambien de vaso y tómense un trago del otro.",
+"{P1}, ¿cuál ha sido su mejor viaje juntos? Si {P2} dice otro, toman los dos.",
+"{P1} y {P2}: ¿quién gasta más? Señálense. El señalado toma 2.",
+"{P2}, cuéntale al grupo una costumbre rara de {P1} en la casa.",
+"{P1}, escríbele a {P2} un mensaje romántico ahora mismo. {P2} lo lee en voz alta.",
+"{P1} y {P2}: a la cuenta de 3, digan cuántos hijos quieren. Si no coinciden, toman 2.",
+"{P2}, ¿qué canción te recuerda a {P1}? Cántala un poco o toma 2.",
+"{P1} y {P2}: tómense la foto de pareja más cursi posible, ahora.",
+"{P1}, ¿qué hace {P2} mejor que tú? Responde o toma 2.",
+"{P1} y {P2}: ¿quién se roba la cobija? Señálense. El señalado toma.",
+"{P2}, dale a {P1} un abrazo de 10 segundos.",
+"{P1}, ¿qué detalle de {P2} te enamoró? Responde o toma 3.",
+"{P1} y {P2}: ¿quién ve más el celular cuando están juntos? Señálense. El señalado toma 2.",
+"{P2}, adivina la talla de zapato de {P1}. Si fallas, toma 1.",
+"{P1} y {P2}: cuenten su momento más vergonzoso juntos o tomen 2 cada uno.",
+"{P1}, hazle un cumplido a {P2} sin usar palabras.",
+"{P1} y {P2}: ¿quién dice «estoy bien» cuando no lo está? Señálense. El señalado toma.",
+"{P1} y {P2}: cada uno le dice al oído a alguien del grupo dónde se ven en 5 años. Si coinciden, reparten 3.",
+],
+picante:[
+"{A}, ¿besos en la primera cita, sí o no? Responde o toma 2.",
+"Toma 2 quien haya besado a alguien que conoció esa misma noche.",
+"{A}, ¿qué canción pondrías para una noche romántica? Responde o toma 2.",
+"{A}, ¿qué es lo más atrevido que has hecho por alguien que te gustaba? Responde o toma 3.",
+"{A}, dale a {B} un beso donde {B} elija: mano, mejilla o frente. O toma 3.",
+"Toma 2 quien haya mandado un mensaje subido de tono a la persona equivocada.",
+"{A}, del 1 al 10, ¿qué tan bien besas? El grupo puede opinar.",
+"{A}, ¿con qué ropa te sientes más sexy? Responde o toma 2.",
+"{A}, ¿prefieres mandar o que te manden? Responde o toma 3.",
+"{A}, mira a {B} con tu mejor cara seductora durante 10 segundos.",
+"Toma 2 quien haya tenido algo con alguien del trabajo o de la U.",
+"{A}, ¿cuál ha sido tu peor experiencia en la intimidad? Responde o toma 4.",
+"{A}, ¿has tenido un amigo con derechos? Responde o toma 3.",
+"{A}, si tuvieras una cita con {B}, ¿a dónde le llevarías? Responde o toma 2.",
+"{A}, quítale a {B} un accesorio usando solo la boca. O toma 3.",
+"Toma 2 quien se haya besado en un cine.",
+"{A}, cuenta tu primer beso con detalles o toma 3.",
+"{A}, ¿cuál es el mensaje más atrevido que te han mandado? Responde o toma 3.",
+"{P1} y {P2}: ¿quién toma la iniciativa en la intimidad? Señálense. El señalado toma 2.",
+"{P1}, describe a {P2} con una palabra subida de tono. O toma 2.",
+"{P2}, siéntate en las piernas de {P1} hasta la próxima carta.",
+"{P1}, dale a {P2} un beso donde diga el grupo: mano, cuello u hombro.",
+"{P2}, susúrrale a {P1} qué es lo que más te gusta que te haga. O toma 3.",
+"{A}, ¿de qué te disfrazarías para una noche especial? Responde o toma 2.",
+"Toma 2 quien se haya quedado a dormir donde alguien la misma noche que lo conoció.",
+"{A}, ¿con qué famoso pasarías una noche? Responde o toma 1.",
+],
+regla:[
+["Nadie puede decir «yo». Quien lo diga toma 1.","Ya pueden decir «yo»."],
+["{A} es el espejo: cuando {A} toma, la persona a su derecha también.","{A} ya no es el espejo."],
+["Antes de tomar hay que brindar con alguien. Quien tome sin brindar, toma otra vez.","Ya pueden tomar sin brindar."],
+["Todos hablan con acento español. Quien se olvide toma 1.","Se acabó el acento español."],
+["Prohibido agarrar el celular. Quien lo haga toma 2.","Ya pueden usar el celular."],
+["Cuando {A} se ponga un dedo en la boca, todos se callan. El último en callarse toma 1.","{A} ya no manda a callar."],
+["Todos terminan sus frases con «¡salud!». Quien se olvide toma 1.","Ya no hace falta decir «¡salud!»."],
+["Prohibido cruzar los brazos o las piernas. Cada vez, 1 trago.","Ya pueden cruzar brazos y piernas."],
+["{A} es la sombra de {B}: cada vez que {B} toma, {A} también.","{A} ya no es la sombra de {B}."],
+["Para ir al baño hay que pedirle permiso a {A}. Quien vaya sin permiso toma 2.","Ya pueden ir al baño sin permiso."],
+["Prohibido decir «no». Cada vez, 1 trago.","Ya pueden decir «no»."],
+["Todos hablan en susurros. Quien suba la voz toma 1.","Ya pueden hablar normal."],
+["Quien se ría toma 1.","Ya pueden reírse gratis."],
+["{A} es el DJ: solo {A} puede cambiar la música.","{A} ya no es el DJ."],
+["Todos le dicen «Su Majestad» a {A}. Quien se olvide toma 1.","{A} vuelve a ser del pueblo."],
+["Prohibido tocarse la cara. Cada vez, 1 trago.","Ya pueden tocarse la cara."],
+["Quien diga «ok» toma 1.","Ya pueden decir «ok»."],
+["Hay que tomar con el meñique levantado. Quien se olvide, toma otra vez.","Ya pueden bajar el meñique."],
+["{P1} y {P2} solo pueden hablarse cantando.","{P1} y {P2} ya pueden hablarse normal."],
+["Cuando {A} grite «¡foto!», todos posan. El último en posar toma 1.","{A} guardó la cámara."],
+["Prohibido decir «qué». Quien lo diga toma 1.","Ya pueden decir «qué»."],
+["Antes de hablar hay que levantar la mano. Quien no lo haga toma 1.","Ya pueden hablar sin levantar la mano."],
+["{A} solo puede decir la verdad. Si lo pillan mintiendo, toma 3.","{A} ya puede mentir otra vez."],
+["Todos le dicen «jefe» a {B}. Quien se olvide toma 1.","{B} ya no es el jefe."],
+["Prohibido mirar a {A} a los ojos. Quien lo haga toma 1.","Ya pueden mirar a {A} a los ojos."],
+["Quien diga el nombre de un país toma 1.","Ya pueden nombrar países."],
+["{A} corrige la pronunciación de todos. Quien diga mal una palabra toma 1.","{A} dejó de corregir."],
+["Hay que aplaudir antes de tomar. Quien se olvide, toma otra vez.","Ya no hace falta aplaudir."],
+["Prohibido decir «tú» o «usted». Hay que hablarse por el nombre. Cada error, 1 trago.","Ya pueden decir «tú» y «usted»."],
+["{A} y {B} se cambian el nombre. Quien los llame por su nombre real toma 1.","{A} y {B} recuperan sus nombres."],
+["Nadie se puede parar sin decir «con permiso». Quien se olvide toma 1.","Ya pueden pararse sin pedir permiso."],
+["{A} repite todo lo que dice {B}. Si se le pasa una frase, toma 1.","{A} ya no repite a {B}."],
+["Prohibido decir «bueno». Cada vez, 1 trago.","Ya pueden decir «bueno»."],
+["{P1} y {P2} tienen que estar sentados juntos. Si uno se aleja, toman los dos.","{P1} y {P2} ya pueden separarse."],
+["Todos hablan en rima. Quien no rime toma 1.","Ya no hace falta rimar."],
+["{A} solo puede responder «tal vez». Cada error, 1 trago.","{A} ya puede responder lo que quiera."],
+["Cuando {A} grite «¡arriba!», todos levantan las manos. El último toma 1.","{A} ya no grita «¡arriba!»."],
+["Hay que decir «mi amor» antes del nombre de cualquiera. Cada error, 1 trago.","Ya pueden decir los nombres solos."],
+["Quien mire la hora toma 1.","Ya pueden ver la hora."],
+],
+};
+Object.keys(MORE).forEach(k=>{ POOL[k] = (POOL[k]||[]).concat(MORE[k]); });
+
+const PRESETS = {
+  fiesta:["suave","risas","yonunca","probable","verdad","retos","temas","prefieres","confesiones","regla"],
+  pareja:["parejas","picante","verdad","yonunca","confesiones","regla"],
+  suave:["suave","risas","probable","yonunca","temas","prefieres"],
+  todo:Object.keys(CATS),
+};
+
+/* ===================== STATE ===================== */
+let players = [];   // {name, partner}
+let selected = new Set(Object.keys(CATS));
+let linkFrom = null;
+const S = {deck:[], idx:0, recent:[], hist:[], pos:-1, count:0, pending:[], use:{}, coupleUse:{}};
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rnd = n => Math.floor(Math.random()*n);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function save(){ try{ localStorage.setItem("brindis.v1", JSON.stringify({players, selected:[...selected], v:3})); }catch(e){} }
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem("brindis.v1")||"null");
+    if(d){ players = d.players||[]; if(d.selected&&d.selected.length){ selected = new Set(d.selected.filter(k=>CATS[k])); if(!d.v) selected.add("temas"); if((d.v||0)<3){ selected.add("prefieres"); selected.add("confesiones"); } } }
+  }catch(e){}
+  if(!players.length){
+    players = [{name:"Ana",partner:"Luis"},{name:"Luis",partner:"Ana"},{name:"Sofi",partner:null},{name:"Diego",partner:null}];
+    exampleNames = true;
+  }
+}
+let exampleNames = false;
+
+/* ===================== SETUP UI ===================== */
+const heart = on => `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.6 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.8 1.4-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" fill="${on?"currentColor":"none"}" stroke="currentColor" stroke-width="2"/></svg>`;
+const xIcon = `<svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+
+function renderPlayers(){
+  const box = $("players");
+  $("pc").textContent = players.length;
+  if(!players.length){ box.innerHTML = `<div class="empty">Agrega al menos 2 jugadores.</div>`; }
+  else box.innerHTML = players.map((p,i)=>{
+    const cls = linkFrom===i ? "chip pick" : (linkFrom!==null && !p.partner ? "chip target" : "chip");
+    return `<div class="${cls}" data-i="${i}">
+      <span class="nm">${esc(p.name)}</span>
+      ${p.partner?`<span class="tag">${heart(true).replace('width="18" height="18"','width="12" height="12"')}${esc(p.partner)}</span>`:""}
+      <button class="ib ${p.partner?"on":""}" data-act="link" data-i="${i}" aria-label="${p.partner?"Separar pareja de ":"Formar pareja con "}${esc(p.name)}">${heart(!!p.partner)}</button>
+      <button class="ib" data-act="del" data-i="${i}" aria-label="Quitar a ${esc(p.name)}">${xIcon}</button>
+    </div>`;
+  }).join("");
+  const h = $("coupleHint");
+  if(linkFrom!==null){ h.className="hint pink"; h.textContent = `Toca a la pareja de ${players[linkFrom].name}.`; }
+  else { h.className="hint"; h.textContent = exampleNames ? "Son nombres de ejemplo. Agrega los suyos y se borran." : "Toca el corazón y luego a su pareja para unirlos."; }
+  validate();
+}
+
+function renderCats(){
+  $("cats").innerHTML = Object.entries(CATS).map(([k,c])=>`
+    <button class="cat ${selected.has(k)?"on":""}" data-k="${k}" style="--c:${c.bg}" aria-pressed="${selected.has(k)}">
+      <span class="ck"></span>
+      <span class="t">${c.n}</span>
+      <span class="d">${c.d}</span>
+      <span class="heat">${[1,2,3].map(n=>`<i class="${n<=c.heat?"f":""}"></i>`).join("")}</span>
+    </button>`).join("");
+  $("cc").textContent = selected.size;
+  validate();
+}
+
+function couples(){
+  const seen=new Set(), out=[];
+  players.forEach(p=>{ if(p.partner && !seen.has(p.name)){ const q=players.find(x=>x.name===p.partner); if(q){ out.push([p.name,q.name]); seen.add(p.name); seen.add(q.name);} } });
+  return out;
+}
+
+function validate(){
+  const play = [...selected].filter(k=>k!=="regla");
+  let why = "";
+  if(players.length<2) why = `Faltan ${2-players.length} jugador${players.length===1?"":"es"}.`;
+  else if(!play.length) why = "Elige al menos un modo además de Reglas.";
+  else if(selected.has("parejas") && !couples().length) why = "Sin parejas unidas, las cartas de pareja le tocan a cualquiera.";
+  $("goBtn").disabled = players.length<2 || !play.length;
+  $("why").textContent = why;
+}
+
+$("addForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const v = $("nameIn").value.trim().replace(/\s+/g," ");
+  if(!v) return;
+  if(exampleNames){ players=[]; exampleNames=false; }
+  let name=v, n=2; while(players.some(p=>p.name.toLowerCase()===name.toLowerCase())) name = `${v} ${n++}`;
+  players.push({name, partner:null});
+  $("nameIn").value=""; $("nameIn").focus();
+  save(); renderPlayers();
+});
+
+$("players").addEventListener("click", e=>{
+  const btn = e.target.closest("[data-act]");
+  const chip = e.target.closest(".chip");
+  if(btn){
+    const i = +btn.dataset.i, p = players[i];
+    if(btn.dataset.act==="del"){
+      if(p.partner){ const q=players.find(x=>x.name===p.partner); if(q) q.partner=null; }
+      players.splice(i,1); linkFrom=null; exampleNames=false;
+    } else {
+      if(p.partner){ const q=players.find(x=>x.name===p.partner); if(q) q.partner=null; p.partner=null; linkFrom=null; }
+      else linkFrom = (linkFrom===i) ? null : i;
+    }
+    save(); renderPlayers(); return;
+  }
+  if(chip && linkFrom!==null){
+    const i = +chip.dataset.i;
+    if(i===linkFrom){ linkFrom=null; renderPlayers(); return; }
+    const a=players[linkFrom], b=players[i];
+    if(b.partner){ const q=players.find(x=>x.name===b.partner); if(q) q.partner=null; }
+    a.partner=b.name; b.partner=a.name; linkFrom=null;
+    save(); renderPlayers();
+  }
+});
+
+$("cats").addEventListener("click", e=>{
+  const b = e.target.closest(".cat"); if(!b) return;
+  const k=b.dataset.k; selected.has(k)?selected.delete(k):selected.add(k);
+  save(); renderCats();
+});
+document.querySelector(".quick").addEventListener("click", e=>{
+  const b=e.target.closest("[data-preset]"); if(!b) return;
+  selected = new Set(PRESETS[b.dataset.preset]); save(); renderCats();
+});
+
+/* ===================== DECK & PICKING ===================== */
+function buildDeck(){
+  const cards=[];
+  selected.forEach(k=>POOL[k].forEach((t,i)=>cards.push({c:k, i, t:Array.isArray(t)?t[0]:t, end:Array.isArray(t)?t[1]:null})));
+  S.deck = shuffle(cards); S.idx = 0;
+}
+function key(c){ return c.c+":"+c.i; }
+
+function draw(){
+  if(S.idx >= S.deck.length){
+    // new shuffle; push recently-seen cards to the back so the restart never echoes the end
+    const recent = new Set(S.recent.slice(-Math.min(12, Math.floor(S.deck.length/2))));
+    const fresh = shuffle(S.deck.filter(c=>!recent.has(key(c))));
+    const old = shuffle(S.deck.filter(c=>recent.has(key(c))));
+    S.deck = fresh.concat(old); S.idx = 0;
+  }
+  // avoid 3 of the same category in a row, and too many live rules
+  const last2 = S.hist.slice(-2).map(h=>h.c);
+  const activeRules = S.pending.length;
+  for(let j=S.idx;j<S.deck.length;j++){
+    const c=S.deck[j];
+    const sameStreak = last2.length===2 && last2[0]===c.c && last2[1]===c.c;
+    const ruleBlocked = c.c==="regla" && (activeRules>=2 || S.count<2);
+    if(!sameStreak && !ruleBlocked){ [S.deck[S.idx],S.deck[j]]=[S.deck[j],S.deck[S.idx]]; break; }
+  }
+  const card = S.deck[S.idx++];
+  S.recent.push(key(card)); if(S.recent.length>40) S.recent.shift();
+  return card;
+}
+
+function pickPlayer(exclude){
+  const pool = players.map(p=>p.name).filter(n=>!exclude.includes(n));
+  const list = pool.length?pool:players.map(p=>p.name);
+  const min = Math.min(...list.map(n=>S.use[n]||0));
+  const low = list.filter(n=>(S.use[n]||0)<=min+0);
+  const n = low[rnd(low.length)];
+  S.use[n]=(S.use[n]||0)+1;
+  return n;
+}
+function pickCouple(){
+  const cs = couples();
+  if(cs.length){
+    const min = Math.min(...cs.map(c=>S.coupleUse[c[0]]||0));
+    const low = cs.filter(c=>(S.coupleUse[c[0]]||0)<=min);
+    const c = low[rnd(low.length)];
+    S.coupleUse[c[0]]=(S.coupleUse[c[0]]||0)+1;
+    return Math.random()<.5?[c[0],c[1]]:[c[1],c[0]];
+  }
+  const a = pickPlayer([]), b = pickPlayer([a]);
+  return [a,b];
+}
+
+function fill(tpl, bind){
+  const needP = /\{P[12]\}/.test(tpl);
+  if(needP && !bind.P1){ const [x,y]=pickCouple(); bind.P1=x; bind.P2=y; }
+  ["A","B","C"].forEach(k=>{
+    if(tpl.includes("{"+k+"}") && !bind[k]){
+      bind[k] = pickPlayer(["A","B","C"].map(z=>bind[z]).filter(Boolean));
+    }
+  });
+  return esc(tpl).replace(/\{(A|B|C|P1|P2)\}/g,(m,k)=>`<span class="who">${esc(bind[k])}</span>`);
+}
+
+function nextCard(){
+  S.count++;
+  const due = S.pending.findIndex(p=>p.at<=S.count);
+  if(due>-1){
+    const p = S.pending.splice(due,1)[0];
+    return {c:"fin", html:fill(p.end, p.bind), sub:""};
+  }
+  const card = draw();
+  const bind = {};
+  const html = fill(card.t, bind);
+  let sub = SUBS[card.c] || "";
+  if(card.c==="regla"){
+    const n = 6 + rnd(7);
+    S.pending.push({at:S.count+n, end:card.end, bind, short:card.t.replace(/\{(A|B|C|P1|P2)\}/g,(m,k)=>bind[k])});
+  }
+  return {c:card.c, html, sub};
+}
+
+/* ===================== GAME UI ===================== */
+function fontSizeFor(html){
+  const len = html.replace(/<[^>]+>/g,"").length;
+  const w = Math.min(window.innerWidth, 680);
+  let base = len<50?2.6: len<80?2.2: len<120?1.85: len<160?1.6:1.4;
+  if(w<400) base *= .86;
+  return base+"rem";
+}
+
+function show(entry, dir){
+  const meta = entry.c==="fin" ? FIN : CATS[entry.c];
+  const g = $("game");
+  g.style.setProperty("--cbg", meta.bg);
+  g.style.setProperty("--cfg", meta.fg);
+  $("catPill").textContent = meta.n;
+  $("txt").innerHTML = entry.html;
+  $("txt").style.setProperty("--fs", fontSizeFor(entry.html));
+  $("sub").textContent = entry.sub;
+  $("sub").hidden = !entry.sub;
+  const card = $("card");
+  card.classList.remove("in","back"); void card.offsetWidth;
+  card.classList.add(dir<0?"back":"in");
+  $("count").textContent = S.pos+1;
+  $("backBtn").disabled = S.pos<=0;
+  $("rules").innerHTML = S.pending.map(p=>`<span title="${esc(p.short)}">Regla: ${esc(p.short.length>42?p.short.slice(0,40)+"…":p.short)}</span>`).join("");
+  try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
+}
+
+function advance(){
+  if(S.pos < S.hist.length-1){ S.pos++; show(S.hist[S.pos],1); return; }
+  const e = nextCard(); S.hist.push(e); S.pos = S.hist.length-1; show(e,1);
+}
+function goBack(){ if(S.pos>0){ S.pos--; show(S.hist[S.pos],-1); } }
+
+function startGame(fresh){
+  if(fresh){ Object.assign(S,{recent:[],hist:[],pos:-1,count:0,pending:[],use:{},coupleUse:{}}); buildDeck(); }
+  go("game");
+  makeBubbles("bubbles");
+  if(S.pos<0) advance(); else show(S.hist[S.pos],1);
+}
+
+function makeBubbles(id){
+  const b=$(id||"bubbles"); if(b.childElementCount) return;
+  for(let i=0;i<14;i++){
+    const s=4+Math.random()*12, el=document.createElement("i");
+    el.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${8+Math.random()*10}s;animation-delay:-${Math.random()*15}s`;
+    b.appendChild(el);
+  }
+}
+
+let wake=null;
+async function requestWake(){ try{ if("wakeLock" in navigator) wake = await navigator.wakeLock.request("screen"); }catch(e){} }
+
+/* tap / swipe */
+let sx=null, sy=null;
+$("stage").addEventListener("pointerdown", e=>{ sx=e.clientX; sy=e.clientY; });
+$("stage").addEventListener("pointerup", e=>{
+  if(sx===null) return;
+  const dx=e.clientX-sx, dy=e.clientY-sy; sx=null;
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){ dx>0?goBack():advance(); }
+  else if(Math.abs(dx)<12 && Math.abs(dy)<12) advance();
+});
+$("nextBtn").addEventListener("click", advance);
+$("backBtn").addEventListener("click", goBack);
+document.addEventListener("keydown", e=>{
+  if($("game").hidden || !$("sheet").hidden || !$("gconfirm").hidden) return;
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="Enter"){ e.preventDefault(); advance(); }
+  if(e.key==="ArrowLeft") goBack();
+  if(e.key==="Escape") $("sheet").hidden=false;
+});
+
+$("goBtn").addEventListener("click", ()=>startGame(true));
+$("exitBtn").addEventListener("click", ()=>{ $("sheet").hidden=false; });
+$("resumeBtn").addEventListener("click", ()=>{ $("sheet").hidden=true; });
+$("sheet").addEventListener("click", e=>{ if(e.target.id==="sheet") $("sheet").hidden=true; });
+$("reshuffleBtn").addEventListener("click", ()=>startGame(true));
+function endRetos(){ S.pos=-1; S.hist=[]; S.pending=[]; }
+$("editBtn").addEventListener("click", ()=>{ endRetos(); go("setup"); });
+$("quitBtn").addEventListener("click", ()=>{ endRetos(); go("setup"); });
+let confirmFrom = "game";
+function askLeave(from){ confirmFrom = from; $("gconfirm").hidden = false; $("gcNo").focus(); }
+$("gBack").addEventListener("click", ()=>askLeave("game"));
+$("gcNo").addEventListener("click", ()=>{ $("gconfirm").hidden = true; });
+$("gconfirm").addEventListener("click", e=>{ if(e.target.id==="gconfirm") $("gconfirm").hidden = true; });
+$("gcYes").addEventListener("click", ()=>{ if(confirmFrom==="kings") kNew(); else if(confirmFrom==="game") endRetos(); go("home"); });
+
+function buzz(p){ try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} }
+
+/* ===================== NAVIGATION ===================== */
+const SCREENS = ["home","setup","game","kings","chooser","imp","impplay","guess","guessplay"];
+function go(s){
+  SCREENS.forEach(id=>{ $(id).hidden = id!==s; });
+  $("sheet").hidden = true; $("ksheet").hidden = true; $("gconfirm").hidden = true;
+  if(s==="chooser") chStart(); else chStop();
+  if(s!=="guessplay") gsStop();
+  if(s==="kings") kEnter();
+  if(s==="imp") impSetupRender();
+  if(s==="guess") gsRender();
+  if(["game","kings","chooser","impplay","guessplay"].includes(s)) requestWake();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click", ()=>go(b.dataset.go)));
+$("setupBack").addEventListener("click", ()=>go("home"));
+
+/* ===================== KINGS CUP ===================== */
+const SUITS = [{k:"s",red:false},{k:"h",red:true},{k:"c",red:false},{k:"d",red:true}];
+const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+const KR = {
+  A:{n:"Cascada", d:"Todos empiezan a tomar a la vez. Nadie puede parar hasta que pare la persona a su derecha.", bg:"#1d8a78"},
+  "2":{n:"Para ti", d:"Elige a alguien para que tome.", bg:"#e2553f"},
+  "3":{n:"Para mí", d:"Te toca tomar.", bg:"#c7612a"},
+  "4":{n:"Al piso", d:"El último en tocar el suelo toma.", bg:"#3654d6"},
+  "5":{n:"Chicos", d:"Todos los chicos toman.", bg:"#0f7fb3"},
+  "6":{n:"Chicas", d:"Todas las chicas toman.", bg:"#d93f7f"},
+  "7":{n:"Al cielo", d:"El último en señalar hacia arriba toma.", bg:"#7a4bd8"},
+  "8":{n:"Compañero", d:"Elige a alguien que tome cada vez que tú tomes, hasta el próximo 8.", bg:"#2f9a58"},
+  "9":{n:"Rima", d:"Di una palabra y sigan en ronda con otras que rimen. Quien se trabe o repita, toma.", bg:"#b8456b"},
+  "10":{n:"Categorías", d:"Elige un tema (países, cervezas, futbolistas) y digan uno por turno. Quien se trabe, toma.", bg:"#0e8a8a"},
+  J:{n:"Nueva regla", d:"Inventa una regla que dura hasta la próxima J. Quien la rompa, toma.", bg:"#6a3fc2"},
+  Q:{n:"Preguntona", d:"Hasta la próxima Q, quien te responda una pregunta toma.", bg:"#c0306a"},
+  K:{n:"Copa del rey", d:"Echa un poco de tu trago en la copa del centro.", bg:"#9e1030"},
+};
+const KLAST = {n:"¡El cuarto rey!", d:"Tómate la copa del centro.", bg:"#6e0a20"};
+const PIPS = {
+  2:[[50,28],[50,112]],
+  3:[[50,28],[50,70],[50,112]],
+  4:[[32,28],[68,28],[32,112],[68,112]],
+  5:[[32,28],[68,28],[50,70],[32,112],[68,112]],
+  6:[[32,28],[68,28],[32,70],[68,70],[32,112],[68,112]],
+  7:[[32,28],[68,28],[50,49],[32,70],[68,70],[32,112],[68,112]],
+  8:[[32,28],[68,28],[50,49],[32,70],[68,70],[50,91],[32,112],[68,112]],
+  9:[[32,28],[68,28],[32,56],[68,56],[50,70],[32,84],[68,84],[32,112],[68,112]],
+  10:[[32,28],[68,28],[50,42],[32,56],[68,56],[32,84],[68,84],[50,98],[32,112],[68,112]],
+};
+const K = {deck:[], idx:0, kings:0, cur:null, desc:true};
+try{ K.desc = localStorage.getItem("brindis.kdesc")!=="0"; }catch(e){}
+
+function faceSvg(r,col,k){
+  const skin="#ffd9b0", gold="#ffb347", ink="#221a2e";
+  let back="", hat="", beard="";
+  if(r==="Q") back=`<path d="M31 64Q28 36 50 36Q72 36 69 64L72 94H28Z" fill="#7a3e1d"/>`;
+  if(r==="K"){
+    hat=`<path d="M33 46V28l8.5 9L50 24l8.5 13L67 28v18z" fill="${gold}" stroke="#c77d12" stroke-width="1.5" stroke-linejoin="round"/><circle cx="50" cy="40" r="2.6" fill="${col}"/>`;
+    beard=`<path d="M35 61Q36 85 50 87Q64 85 65 61Q58 70 50 70Q42 70 35 61Z" fill="#f4f0ea" stroke="#d8cfc2"/>`;
+  }
+  if(r==="Q") hat=`<path d="M37 45Q50 33 63 45L60 47Q50 40 40 47Z" fill="${gold}"/><circle cx="50" cy="38.5" r="2.4" fill="${col}"/>`;
+  if(r==="J") hat=`<path d="M32 51Q33 34 50 34Q67 34 68 51Q50 45 32 51Z" fill="${col}"/><path d="M64 40Q80 34 78 20" fill="none" stroke="${gold}" stroke-width="3" stroke-linecap="round"/>`;
+  const my = r==="K"?67:64;
+  return `<rect x="18" y="16" width="64" height="108" rx="6" fill="none" stroke="${col}" stroke-opacity=".22" stroke-width="1.2"/>
+  <g class="fig">${back}
+    <path d="M24 122Q25 90 50 86Q75 90 76 122Z" fill="${col}"/>
+    <path d="M40 88L50 100L60 88" fill="none" stroke="${gold}" stroke-width="3" stroke-linejoin="round"/>
+    <use href="#s-${k}" x="42" y="104" width="16" height="16" fill="${gold}"/>
+    <circle cx="50" cy="58" r="16" fill="${skin}"/>${beard}
+    <g class="eyes"><ellipse cx="44" cy="56" rx="2" ry="2.6" fill="${ink}"/><ellipse cx="56" cy="56" rx="2" ry="2.6" fill="${ink}"/></g>
+    <circle cx="39.5" cy="62" r="2.6" fill="#ff8fa3" opacity=".6"/><circle cx="60.5" cy="62" r="2.6" fill="#ff8fa3" opacity=".6"/>
+    <path d="M45 ${my}Q50 ${my+4} 55 ${my}" stroke="${ink}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    ${hat}</g>`;
+}
+function cardFace(c){
+  const col = c.red ? "#d6283f" : "#221a2e";
+  let art;
+  if(c.r==="A") art = `<circle cx="50" cy="70" r="34" fill="none" stroke="${col}" stroke-opacity=".15" stroke-width="2"/><use class="pip acepulse" href="#s-${c.k}" x="24" y="44" width="52" height="52" fill="${col}"/>`;
+  else if(PIPS[c.r]) art = PIPS[c.r].map(([x,y],i)=>`<g transform="translate(${x} ${y})${y>70?" rotate(180)":""}"><use class="pip" href="#s-${c.k}" x="-8" y="-8" width="16" height="16" fill="${col}" style="animation-delay:${.35+i*.05}s"/></g>`).join("");
+  else art = faceSvg(c.r,col,c.k);
+  const corner = cls => `<div class="corner ${cls}" style="color:${col}"><span>${c.r}</span><svg viewBox="0 0 20 20"><use href="#s-${c.k}"/></svg></div>`;
+  return `<svg class="cart" viewBox="0 0 100 140" aria-hidden="true">${art}</svg>${corner("tl")}${corner("br")}`;
+}
+function renderCrowns(fresh){
+  $("crowns").innerHTML = [0,1,2,3].map(i=>`<svg class="${i<K.kings?"on":""}${fresh&&i===K.kings-1?" new":""}" viewBox="0 0 24 20"><path d="M2 17V5l5.5 5L12 2l4.5 8L22 5v12z"/></svg>`).join("");
+  $("crowns").setAttribute("aria-label", `Reyes: ${K.kings} de 4`);
+}
+function kSetDesc(){ $("kTog").setAttribute("aria-pressed", String(K.desc)); $("rdesc").hidden = !K.desc; }
+function kRender(anim){
+  const el = $("kings"), pc = $("pcard");
+  if(!K.cur){
+    el.style.setProperty("--kbg","#3a2a55");
+    pc.className = "pcard down";
+    $("rname").textContent = "Kings Cup";
+    $("rdesc").textContent = "Pongan una copa vacía en el centro.";
+    renderCrowns(false);
+  } else {
+    const rule = (K.cur.r==="K" && K.cur.n===4) ? KLAST : KR[K.cur.r];
+    el.style.setProperty("--kbg", rule.bg);
+    $("pfront").innerHTML = cardFace(K.cur);
+    $("rname").textContent = rule.n;
+    $("rdesc").textContent = rule.d;
+    pc.className = "pcard";
+    if(anim){
+      void pc.offsetWidth; pc.classList.add("deal");
+      const ri = $("rinfo"); ri.classList.remove("in"); void ri.offsetWidth; ri.classList.add("in");
+    }
+    renderCrowns(anim && K.cur.r==="K");
+  }
+  $("kcount").textContent = K.deck.length - K.idx;
+  kSetDesc();
+}
+function kNew(){
+  K.deck = shuffle(SUITS.flatMap(s=>RANKS.map(r=>({r, k:s.k, red:s.red}))));
+  K.idx = 0; K.kings = 0; K.cur = null;
+  $("kend").hidden = true; $("ksheet").hidden = true;
+  kRender(false);
+}
+function kDraw(){
+  if(!$("kend").hidden || !$("ksheet").hidden || !$("gconfirm").hidden) return;
+  if(K.idx >= K.deck.length){ $("kend").hidden = false; return; }
+  const c = K.deck[K.idx++];
+  if(c.r==="K") K.kings++;
+  K.cur = {...c, n:K.kings};
+  kRender(true);
+  buzz(c.r==="K" ? [20,40,20] : 8);
+}
+function kEnter(){ makeBubbles("kbubbles"); if(!K.deck.length) kNew(); else kRender(false); }
+
+$("kstage").addEventListener("click", kDraw);
+$("kTog").addEventListener("click", ()=>{ K.desc = !K.desc; try{ localStorage.setItem("brindis.kdesc", K.desc?"1":"0"); }catch(e){} kSetDesc(); });
+$("kMenu").addEventListener("click", ()=>{ $("ksheet").hidden = false; });
+$("kResume").addEventListener("click", ()=>{ $("ksheet").hidden = true; });
+$("ksheet").addEventListener("click", e=>{ if(e.target.id==="ksheet") $("ksheet").hidden = true; });
+$("kShuffle").addEventListener("click", kNew);
+$("kBack").addEventListener("click", ()=>{ if(K.cur) askLeave("kings"); else go("home"); });
+$("kAgain").addEventListener("click", kNew);
+$("kEndHome").addEventListener("click", ()=>{ kNew(); go("home"); });
+document.addEventListener("keydown", e=>{
+  if($("kings").hidden || !$("ksheet").hidden || !$("gconfirm").hidden) return;
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="Enter"){ e.preventDefault(); kDraw(); }
+  if(e.key==="Escape") $("ksheet").hidden = false;
+});
+
+/* ===================== CHOOSER ===================== */
+const CH_DELAY = 2600;
+const CH_COLORS = ["#ff5c96","#ffb347","#4fd1c5","#7a8bff","#b57bff","#ff6b4a","#5ad16b","#ffd93d","#3fb6ff","#ff8fd8"];
+const CH = {pts:new Map(), state:"idle", last:0, doneAt:0, win:null, losers:[], raf:0, w:0, h:0, uid:0, resetT:0};
+const cv = $("chCanvas"), cx = cv.getContext("2d");
+const easeOut = t => 1-Math.pow(1-t,3);
+const easeBack = t => { const c=1.70158; return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2); };
+
+function chResize(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  CH.w = cv.clientWidth; CH.h = cv.clientHeight;
+  cv.width = Math.round(CH.w*dpr); cv.height = Math.round(CH.h*dpr);
+  cx.setTransform(dpr,0,0,dpr,0,0);
+}
+function chColor(){
+  const used = new Set([...CH.pts.values()].map(p=>p.color));
+  const free = CH_COLORS.filter(c=>!used.has(c));
+  const list = free.length ? free : CH_COLORS;
+  return list[rnd(list.length)];
+}
+function chHint(){ $("chHint").classList.toggle("off", CH.pts.size>0 || CH.state==="done"); }
+function chReset(){ CH.pts.clear(); CH.state="idle"; CH.win=null; CH.losers=[]; clearTimeout(CH.resetT); chHint(); }
+function chPos(e){ const r = cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+
+cv.addEventListener("pointerdown", e=>{
+  e.preventDefault();
+  if(CH.state==="done"){ if(e.pointerType==="mouse") chReset(); return; }
+  const p = chPos(e), now = performance.now();
+  if(e.pointerType==="mouse"){
+    for(const [id,pt] of CH.pts){
+      if(Math.hypot(pt.x-p.x, pt.y-p.y) < 60){ CH.pts.delete(id); CH.last=now; if(!CH.pts.size) CH.state="idle"; chHint(); return; }
+    }
+    CH.pts.set("m"+(CH.uid++), {x:p.x, y:p.y, color:chColor(), born:now, seed:Math.random()*6});
+  } else {
+    try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    CH.pts.set(e.pointerId, {x:p.x, y:p.y, color:chColor(), born:now, seed:Math.random()*6});
+  }
+  CH.state = "waiting"; CH.last = now; buzz(10); chHint();
+});
+cv.addEventListener("pointermove", e=>{ const pt = CH.pts.get(e.pointerId); if(pt){ const p = chPos(e); pt.x=p.x; pt.y=p.y; } });
+function chLift(e){
+  if(!CH.pts.has(e.pointerId)) return;
+  CH.pts.delete(e.pointerId);
+  if(CH.state==="done"){
+    if(![...CH.pts.keys()].some(k=>typeof k==="number")){ clearTimeout(CH.resetT); CH.resetT = setTimeout(()=>{ if(CH.state==="done") chReset(); }, 700); }
+    return;
+  }
+  CH.last = performance.now();
+  if(!CH.pts.size) CH.state = "idle";
+  chHint();
+}
+cv.addEventListener("pointerup", chLift);
+cv.addEventListener("pointercancel", chLift);
+cv.addEventListener("contextmenu", e=>e.preventDefault());
+
+function drawFinger(pt, now, prog, scale, winner){
+  const age = Math.min(1, (now-pt.born)/300);
+  const r = ((winner?56:42) * easeBack(age) + Math.sin(now/220 + pt.seed)*3) * scale;
+  if(r <= 1) return;
+  cx.fillStyle = pt.color;
+  cx.globalAlpha = .16; cx.beginPath(); cx.arc(pt.x, pt.y, r+28, 0, Math.PI*2); cx.fill();
+  cx.globalAlpha = 1; cx.beginPath(); cx.arc(pt.x, pt.y, r, 0, Math.PI*2); cx.fill();
+  cx.lineWidth = 6*scale; cx.lineCap = "round"; cx.strokeStyle = pt.color;
+  cx.globalAlpha = .3; cx.beginPath(); cx.arc(pt.x, pt.y, r+14*scale, 0, Math.PI*2); cx.stroke();
+  cx.globalAlpha = 1; cx.beginPath();
+  if(winner) cx.arc(pt.x, pt.y, r+14*scale, 0, Math.PI*2);
+  else if(prog > 0) cx.arc(pt.x, pt.y, r+14*scale, -Math.PI/2, -Math.PI/2 + prog*Math.PI*2);
+  else { const a = now/380 + pt.seed; cx.arc(pt.x, pt.y, r+14*scale, a, a+1.1); }
+  cx.stroke();
+}
+function chDraw(now){
+  const {w,h} = CH;
+  cx.globalAlpha = 1; cx.fillStyle = "#15101d"; cx.fillRect(0,0,w,h);
+  if(CH.state !== "done"){
+    const prog = CH.pts.size>=2 ? Math.min(1,(now-CH.last)/CH_DELAY) : 0;
+    CH.pts.forEach(pt=>drawFinger(pt, now, prog, 1, false));
+    if(CH.pts.size===1){
+      cx.fillStyle = "#a998bd"; cx.font = "600 16px Figtree, system-ui, sans-serif"; cx.textAlign = "center";
+      cx.fillText("Falta al menos uno más", w/2, h - 48);
+    }
+    return;
+  }
+  const t = now - CH.doneAt, win = CH.win;
+  const lt = Math.min(1, t/320);
+  if(lt < 1) CH.losers.forEach(p=>drawFinger(p, now, 1, 1-easeOut(lt), false));
+  const ft = Math.max(0, Math.min(1, (t-120)/700));
+  const maxR = Math.hypot(Math.max(win.x, w-win.x), Math.max(win.y, h-win.y)) + 40;
+  const hole = maxR - (maxR-96)*easeOut(ft);
+  cx.beginPath(); cx.rect(0,0,w,h); cx.arc(win.x, win.y, hole, 0, Math.PI*2);
+  cx.fillStyle = win.color; cx.fill("evenodd");
+  drawFinger(win, now, 1, 1, true);
+  if(t > 850){
+    const a = Math.min(1, (t-850)/350);
+    cx.globalAlpha = a; cx.fillStyle = "#15101d"; cx.textAlign = "center";
+    cx.font = "400 34px 'Dela Gothic One', 'Arial Black', sans-serif";
+    const ty = win.y > h/2 ? win.y - 140 : win.y + 160;
+    cx.fillText("¡Te tocó!", w/2, Math.max(70, Math.min(h-90, ty)));
+    cx.font = "700 15px Figtree, system-ui, sans-serif";
+    cx.fillText("Suelten para otra ronda", w/2, h - 40);
+    cx.globalAlpha = 1;
+  }
+}
+function chTick(now){
+  if(CH.state==="waiting" && CH.pts.size>=2 && now-CH.last >= CH_DELAY){
+    const arr = [...CH.pts.values()];
+    CH.win = arr[rnd(arr.length)];
+    CH.losers = arr.filter(p=>p!==CH.win);
+    CH.state = "done"; CH.doneAt = now;
+    buzz([40,60,90]); chHint();
+  }
+  chDraw(now);
+  CH.raf = requestAnimationFrame(chTick);
+}
+function chStart(){
+  chResize(); chReset();
+  let fine = false; try{ fine = matchMedia("(hover:hover) and (pointer:fine)").matches; }catch(e){}
+  $("chSub").textContent = fine ? "Haz clic para poner o quitar puntos." : "";
+  $("chSub").hidden = !fine;
+  cancelAnimationFrame(CH.raf); CH.raf = requestAnimationFrame(chTick);
+}
+function chStop(){ cancelAnimationFrame(CH.raf); CH.raf = 0; chReset(); }
+window.addEventListener("resize", ()=>{ if(!$("chooser").hidden) chResize(); });
+$("chBack").addEventListener("click", ()=>go("home"));
+
+/* ===================== EL IMPOSTOR ===================== */
+const IW = {
+"Lugares":["Playa","Hospital","Aeropuerto","Escuela","Cine","Supermercado","Gimnasio","Biblioteca","Iglesia","Estadio","Zoológico","Museo","Discoteca","Restaurante","Banco","Cárcel","Parque de diversiones","Volcán","Montaña","Desierto","Selva","Hotel","Farmacia","Peluquería","Cementerio","Circo","Barco","Submarino","Estación espacial","Castillo","Granja","Oficina","Gasolinera","Panadería","Piscina","Spa"],
+"Comida y bebida":["Pizza","Hamburguesa","Sushi","Tacos","Helado","Chocolate","Palomitas","Café","Cerveza","Vino","Tequila","Ensalada","Sopa","Arroz con pollo","Pan","Queso","Huevo frito","Pollo frito","Hot dog","Lasaña","Ceviche","Empanada","Churros","Pastel de cumpleaños","Aguacate","Banano","Piña","Mango","Sandía","Limonada","Batido","Papas fritas","Nachos","Panqueques","Cereal"],
+"Animales":["Perro","Gato","León","Tigre","Elefante","Jirafa","Mono","Perezoso","Tucán","Delfín","Tiburón","Ballena","Pingüino","Caballo","Vaca","Cerdo","Gallina","Serpiente","Cocodrilo","Tortuga","Rana","Murciélago","Búho","Águila","Abeja","Mariposa","Araña","Hormiga","Canguro","Koala","Oso panda","Pulpo","Cangrejo","Camello","Lobo","Zorro","Conejo","Ratón"],
+"Objetos":["Celular","Paraguas","Llaves","Espejo","Cepillo de dientes","Almohada","Reloj","Lentes de sol","Billetera","Control remoto","Tijeras","Vela","Mochila","Guitarra","Balón","Bicicleta","Martillo","Escoba","Toalla","Audífonos","Cámara","Libro","Silla","Refrigeradora","Microondas","Lámpara","Cuchara","Sartén","Maleta","Zapato","Sombrero","Anillo","Calcetín","Secadora de pelo","Plancha","Peine","Candado"],
+"Profesiones":["Doctor","Bombero","Policía","Chef","Piloto","Maestro","Dentista","Veterinario","Abogado","Ingeniero","Mecánico","Peluquero","Fotógrafo","Payaso","Mago","Astronauta","Cantante","Futbolista","Árbitro","Salvavidas","Jardinero","Cartero","Taxista","Panadero","Científico","Programador","Juez","Detective","Soldado","Bartender","Mesero","Youtuber","DJ","Tatuador","Agricultor","Pescador"],
+"Deportes y planes":["Fútbol","Baloncesto","Tenis","Natación","Surf","Boxeo","Ciclismo","Golf","Béisbol","Voleibol","Ajedrez","Yoga","Karate","Esquí","Patinaje","Escalada","Pesca","Bolos","Ping pong","Atletismo","Gimnasia","Paracaidismo","Buceo","Rafting","Karaoke","Senderismo","Camping","Billar","Dardos","Póker","Maratón","Canopy"],
+"Fiesta":["Piñata","Confeti","Globos","Brindis","Resaca","Disfraz","Shots","Hielo","Regalo","Velas","Vecino enojado","Música alta","Selfie","Fiesta sorpresa","Despedida de soltero","Boda","Graduación","Baby shower","Año Nuevo","Halloween","Navidad","Cumpleaños","Fogata","Parrillada","Carnaval","Concierto","Barra libre","Pista de baile","Fiesta de pijamas","Karaoke de borrachos"],
+"Películas y series":["Harry Potter","Titanic","Shrek","Star Wars","Toy Story","El Rey León","Avengers","Frozen","Jurassic Park","Batman","Spider-Man","Piratas del Caribe","Rápidos y furiosos","Barbie","Coco","Stranger Things","Los Simpson","Friends","La casa de papel","Breaking Bad","Game of Thrones","El Chavo del 8","Bob Esponja","Merlina","El juego del calamar","Mi villano favorito","Intensamente","Matrix","Volver al futuro","Avatar","Encanto","Ratatouille","Up","Buscando a Nemo"],
+"Costa Rica":["Gallo pinto","Casado","Chifrijo","Volcán Arenal","Manuel Antonio","Tortuguero","Monteverde","Guanacaste","Limón","Cartago","Basílica de los Ángeles","Romería","Pura vida","Mae","Guaro","Imperial","Soda","Carreta típica","Tamales","Olla de carne","Rondón","Agua de pipa","Granizado","Pejibaye","Salsa Lizano","Chorreador","Mangos con sal","Saprissa","La Liga","La Sele","Fiestas de Zapote","Tope","Aguacero"],
+};
+const IMP = {n:5, imps:1, cats:new Set(Object.keys(IW)), hint:true, useNames:false, names:[], i:0, word:"", cat:"", impSet:new Set(), phase:"cover", guard:0, used:{}};
+try{
+  const d = JSON.parse(localStorage.getItem("brindis.imp")||"null");
+  if(d){ IMP.n=d.n||5; IMP.imps=d.imps||1; IMP.hint=d.hint!==false; IMP.useNames=!!d.useNames; if(d.cats&&d.cats.length) IMP.cats=new Set(d.cats.filter(k=>IW[k])); }
+}catch(e){}
+function impSave(){ try{ localStorage.setItem("brindis.imp", JSON.stringify({n:IMP.n, imps:IMP.imps, hint:IMP.hint, useNames:IMP.useNames, cats:[...IMP.cats]})); }catch(e){} }
+const namesAvailable = () => !exampleNames && players.length>=3;
+const impUsingNames = () => IMP.useNames && namesAvailable();
+const impCount = () => impUsingNames() ? players.length : IMP.n;
+const impMaxImps = n => Math.max(1, Math.min(3, Math.floor((n-1)/2)));
+
+function impSetupRender(){
+  const n = impCount(), named = impUsingNames();
+  $("impN").textContent = n;
+  $("impMinus").disabled = named || n<=3;
+  $("impPlus").disabled = named || n>=20;
+  $("impNames").hidden = !namesAvailable();
+  $("impNames").setAttribute("aria-pressed", String(named));
+  $("impNamesSub").textContent = namesAvailable() ? players.map(p=>p.name).join(", ") : "";
+  const max = impMaxImps(n); if(IMP.imps>max) IMP.imps = max;
+  document.querySelectorAll("#impSeg button").forEach(b=>{ const v=+b.dataset.v; b.disabled = v>max; b.setAttribute("aria-pressed", String(v===IMP.imps)); });
+  $("impCats").innerHTML = Object.keys(IW).map(k=>`<button type="button" class="chipsel ${IMP.cats.has(k)?"on":""}" data-k="${k}" aria-pressed="${IMP.cats.has(k)}">${k}<small>${IW[k].length}</small></button>`).join("");
+  $("impAll").disabled = IMP.cats.size===Object.keys(IW).length;
+  $("impHint").setAttribute("aria-pressed", String(IMP.hint));
+  $("impGo").disabled = !IMP.cats.size;
+  $("impWhy").textContent = IMP.cats.size ? "" : "Elige al menos una categoría.";
+}
+function impPickWord(){
+  const cats = [...IMP.cats], cat = cats[rnd(cats.length)];
+  const used = IMP.used[cat] = IMP.used[cat] || [];
+  let pool = IW[cat].filter(w=>!used.includes(w));
+  if(!pool.length){ used.length = 0; pool = IW[cat].slice(); }
+  const w = pool[rnd(pool.length)]; used.push(w);
+  return {cat, w};
+}
+function impStart(){
+  const n = impCount();
+  IMP.names = impUsingNames() ? players.map(p=>p.name) : Array.from({length:n}, (_,i)=>`Jugador ${i+1}`);
+  const {cat, w} = impPickWord(); IMP.cat = cat; IMP.word = w;
+  IMP.impSet = new Set(shuffle([...Array(n).keys()]).slice(0, Math.min(IMP.imps, impMaxImps(n))));
+  IMP.i = 0;
+  go("impplay"); impCover();
+}
+function ipShow(id){ ["ipCover","ipSecret","ipTalk","ipResult"].forEach(v=>{ $(v).hidden = v!==id; }); }
+function impCover(){
+  $("ipCard").innerHTML = "";
+  IMP.phase = "cover";
+  $("impplay").style.setProperty("--ibg","#4a33a8");
+  $("ipStep").textContent = `${IMP.i+1} de ${IMP.names.length}`;
+  $("ipName").textContent = IMP.names[IMP.i];
+  $("ipDots").innerHTML = IMP.names.map((_,i)=>`<i class="${i<IMP.i?"done":i===IMP.i?"now":""}"></i>`).join("");
+  ipShow("ipCover");
+  IMP.guard = performance.now() + 700;
+}
+function impSecret(){
+  if(IMP.phase!=="cover" || performance.now() < IMP.guard) return;
+  const isImp = IMP.impSet.has(IMP.i);
+  const cat = IMP.hint ? `<p class="scat">${esc(IMP.cat)}</p>` : "";
+  const card = $("ipCard");
+  card.innerHTML = isImp
+    ? `<p class="slabel">Tú eres</p><p class="sword">El impostor</p>${cat}`
+    : `<p class="slabel">Tu palabra es</p><p class="sword">${esc(IMP.word)}</p>${cat}`;
+  card.classList.remove("in"); void card.offsetWidth; card.classList.add("in");
+  IMP.phase = "secret"; ipShow("ipSecret"); buzz(10);
+}
+function impHide(){
+  if(IMP.phase!=="secret") return;
+  $("ipCard").innerHTML = "";
+  IMP.i++;
+  if(IMP.i < IMP.names.length) impCover(); else impTalk();
+}
+function impTalk(){
+  IMP.phase = "talk";
+  const civ = IMP.names.map((_,i)=>i).filter(i=>!IMP.impSet.has(i));
+  $("ipStarter").textContent = IMP.names[civ[rnd(civ.length)]];
+  ipShow("ipTalk");
+}
+function impResult(){
+  IMP.phase = "result";
+  const imps = [...IMP.impSet].sort((a,b)=>a-b).map(i=>IMP.names[i]);
+  $("ipResLabel").textContent = imps.length>1 ? "Los impostores eran" : "El impostor era";
+  $("ipResNames").textContent = imps.length>1 ? imps.slice(0,-1).join(", ")+" y "+imps[imps.length-1] : imps[0];
+  $("ipResWord").textContent = IMP.word;
+  $("impplay").style.setProperty("--ibg","#9e1030");
+  ipShow("ipResult"); buzz([30,50,30]);
+}
+$("impHome").addEventListener("click", ()=>go("home"));
+$("impMinus").addEventListener("click", ()=>{ IMP.n=Math.max(3,IMP.n-1); impSave(); impSetupRender(); });
+$("impPlus").addEventListener("click", ()=>{ IMP.n=Math.min(20,IMP.n+1); impSave(); impSetupRender(); });
+$("impNames").addEventListener("click", ()=>{ IMP.useNames=!IMP.useNames; impSave(); impSetupRender(); });
+$("impSeg").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b||b.disabled) return; IMP.imps=+b.dataset.v; impSave(); impSetupRender(); });
+$("impCats").addEventListener("click", e=>{ const b=e.target.closest(".chipsel"); if(!b) return; const k=b.dataset.k; IMP.cats.has(k)?IMP.cats.delete(k):IMP.cats.add(k); impSave(); impSetupRender(); });
+$("impAll").addEventListener("click", ()=>{ IMP.cats=new Set(Object.keys(IW)); impSave(); impSetupRender(); });
+$("impHint").addEventListener("click", ()=>{ IMP.hint=!IMP.hint; impSave(); impSetupRender(); });
+$("impGo").addEventListener("click", impStart);
+$("ipCover").addEventListener("click", impSecret);
+$("ipHide").addEventListener("click", impHide);
+$("ipReveal").addEventListener("click", impResult);
+$("ipAgain").addEventListener("click", impStart);
+$("ipSettings").addEventListener("click", ()=>go("imp"));
+$("ipBack").addEventListener("click", ()=>{ if(IMP.phase==="result") go("home"); else askLeave("imp"); });
+
+/* ===================== ADIVINA QUIÉN SOY ===================== */
+const GQ = {
+"Videojuegos":["Mario","Luigi","Princesa Peach","Bowser","Yoshi","Toad","Wario","Donkey Kong","Diddy Kong","Link","Zelda","Ganondorf","Pikachu","Charizard","Mewtwo","Jigglypuff","Sonic","Tails","Knuckles","Pac-Man","Kirby","Samus","Fox McCloud","Lara Croft","Kratos","Master Chief","Steve de Minecraft","Creeper","Crash Bandicoot","Spyro","Mega Man","Ryu","Chun-Li","Sub-Zero","Scorpion","Cloud Strife","Solid Snake","Ezio Auditore","Geralt de Rivia","Nathan Drake","Ellie de The Last of Us","Arthur Morgan","CJ de GTA San Andreas","Tripulante de Among Us","Tom Nook","Leon Kennedy","Agente 47","Rayman","Sackboy","Pou","Red de Angry Birds","Doom Slayer"],
+"Anime":["Goku","Vegeta","Gohan","Piccolo","Freezer","Naruto","Sasuke","Kakashi","Itachi","Hinata","Luffy","Zoro","Nami","Ichigo","Light Yagami","L","Ryuk","Eren Jaeger","Mikasa","Levi","Tanjiro","Nezuko","Zenitsu","Gon","Killua","Saitama","Deku","All Might","Bakugo","Edward Elric","Sailor Moon","Seiya","Ash Ketchum","Doraemon","Shin-chan","Totoro","Chihiro","Gojo Satoru","Itadori Yuji","Sukuna","Inuyasha","Spike Spiegel","Shinji Ikari","Heidi","Candy Candy","Oliver Atom","Ranma","Anya Forger","Denji","Kirito","Hamtaro","Astro Boy"],
+"Televisión":["Homer Simpson","Bart Simpson","Lisa Simpson","Marge Simpson","Bob Esponja","Patricio Estrella","Calamardo","Don Cangrejo","El Chavo del 8","Quico","Don Ramón","La Chilindrina","El Chapulín Colorado","Walter White","Jesse Pinkman","Tyrion Lannister","Daenerys Targaryen","Jon Snow","Eleven","Michael Scott","Ross Geller","Rachel Green","Joey Tribbiani","Sheldon Cooper","Dora la Exploradora","Peppa Pig","Bluey","Pedro Picapiedra","Scooby-Doo","Shaggy","Rick Sánchez","Morty","Peter Griffin","Stewie Griffin","Phineas","Perry el ornitorrinco","Hannah Montana","Betty la fea","Merlina Addams","El Profesor de La casa de papel","Barney el dinosaurio","Tom de Tom y Jerry","Bugs Bunny","El Pato Lucas","El Correcaminos","La Pantera Rosa","La rana René","Elmo","Ben 10","Dexter","Johnny Bravo","Mr. Bean"],
+"Películas":["Harry Potter","Hermione Granger","Voldemort","Darth Vader","Yoda","Luke Skywalker","Iron Man","Spider-Man","Batman","Joker","Superman","Mujer Maravilla","Hulk","Thor","Capitán América","Thanos","Shrek","Burro de Shrek","Fiona","Buzz Lightyear","Woody","Nemo","Dory","Simba","Elsa","Olaf","Jack Sparrow","Indiana Jones","Rocky Balboa","Terminator","Forrest Gump","E.T.","King Kong","Godzilla","Gollum","Gandalf","James Bond","Barbie","Un Minion","Gru","Rapunzel","Mulán","Aladdín","El Genio de Aladdín","Cenicienta","Jack Skellington","Freddy Krueger","Chucky","Pennywise","Willy Wonka","Marty McFly","Neo"],
+"Famosos":["Lionel Messi","Cristiano Ronaldo","Neymar","Pelé","Diego Maradona","Keylor Navas","Michael Jordan","LeBron James","Usain Bolt","Serena Williams","Rafael Nadal","Shakira","Bad Bunny","Karol G","J Balvin","Daddy Yankee","Taylor Swift","Beyoncé","Rihanna","Lady Gaga","Michael Jackson","Elvis Presley","Freddie Mercury","Madonna","Justin Bieber","Ed Sheeran","Billie Eilish","Dua Lipa","Luis Miguel","Selena Quintanilla","Ricky Martin","Jennifer Lopez","Elon Musk","Bill Gates","Steve Jobs","Mark Zuckerberg","Albert Einstein","Frida Kahlo","Pablo Picasso","Leonardo da Vinci","Napoleón","Cleopatra","Charles Chaplin","Marilyn Monroe","Keanu Reeves","La Roca","Will Smith","Brad Pitt","Leonardo DiCaprio","Kim Kardashian","Oprah","Mahatma Gandhi"],
+"Profesiones":["Doctor","Arquitecto","Bombero","Policía","Chef","Piloto de avión","Astronauta","Maestro","Dentista","Veterinario","Abogado","Ingeniero","Enfermero","Mecánico","Electricista","Plomero","Carpintero","Peluquero","Fotógrafo","Periodista","Payaso","Mago","Cantante","Actor","Bailarín","Futbolista","Árbitro","Salvavidas","Jardinero","Cartero","Taxista","Panadero","Agricultor","Pescador","Científico","Programador","Psicólogo","Juez","Detective","Soldado","Barista","Bartender","Mesero","Youtuber","DJ","Tatuador","Guía turístico","Repartidor","Arqueólogo","Paramédico","Sastre","Cajero de banco"],
+};
+const GQC = {"Videojuegos":"#2f9a58","Anime":"#d93f7f","Televisión":"#0f7fb3","Películas":"#7a4bd8","Famosos":"#e2553f","Profesiones":"#0e8a8a"};
+const GQD = {"Videojuegos":"Mario, Pikachu, Kratos…","Anime":"Goku, Naruto, Luffy…","Televisión":"Homer, El Chavo, Eleven…","Películas":"Shrek, Darth Vader, Elsa…","Famosos":"Messi, Shakira, Einstein…","Profesiones":"Doctor, bombero, chef…"};
+const G = {cats:new Set(Object.keys(GQ)), time:60, deck:[], key:"", idx:0, res:[], phase:"idle", end:0, iv:0, tos:[], lock:0, cur:null};
+try{
+  const d = JSON.parse(localStorage.getItem("brindis.guess")||"null");
+  if(d){ if(d.cats&&d.cats.length) G.cats=new Set(d.cats.filter(k=>GQ[k])); if([0,60,90,120].includes(d.time)) G.time=d.time; }
+}catch(e){}
+function gsSave(){ try{ localStorage.setItem("brindis.guess", JSON.stringify({cats:[...G.cats], time:G.time})); }catch(e){} }
+function gsRender(){
+  $("gsCats").innerHTML = Object.keys(GQ).map(k=>`<button type="button" class="cat ${G.cats.has(k)?"on":""}" data-k="${k}" style="--c:${GQC[k]}" aria-pressed="${G.cats.has(k)}"><span class="ck"></span><span class="t">${k}</span><span class="d">${GQD[k]}</span></button>`).join("");
+  document.querySelectorAll("#gsSeg button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.v===G.time)));
+  $("gsAll").disabled = G.cats.size===Object.keys(GQ).length;
+  $("gsGo").disabled = !G.cats.size;
+  $("gsWhy").textContent = G.cats.size ? "" : "Elige al menos una categoría.";
+}
+function gsFS(t){ const L=t.length; let r = L<=8?3.6 : L<=14?3 : L<=20?2.5 : 2.1; if(window.innerWidth<400) r*=.85; return r+"rem"; }
+function fmtTime(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
+function gsShow(id){
+  ["gsReady","gsCount","gsPlay","gsDone"].forEach(v=>{ $(v).hidden = v!==id; });
+  $("gsBtns").hidden = id!=="gsPlay";
+  $("gsTime").hidden = !(G.time>0) || id==="gsDone";
+  $("gsStopBtn").hidden = !(id==="gsPlay" && G.time===0);
+}
+function gsScore(){ const h=G.res.filter(r=>r.ok).length; $("gsScore").textContent = `${h} adivinada${h===1?"":"s"}`; return h; }
+function gsStop(){ clearInterval(G.iv); G.iv=0; G.tos.forEach(clearTimeout); G.tos=[]; $("gsFlash").hidden=true; $("gsTime").classList.remove("low"); }
+function gsStart(){
+  gsStop();
+  const key=[...G.cats].sort().join("|");
+  if(key!==G.key || G.idx>=G.deck.length){ G.deck = shuffle([...G.cats].flatMap(c=>GQ[c].map(n=>({n,c})))); G.idx=0; G.key=key; }
+  G.res=[]; G.phase="ready"; gsScore();
+  $("gsTime").textContent = fmtTime(G.time);
+  $("guessplay").style.setProperty("--gbg","#c96f12");
+  go("guessplay"); gsShow("gsReady");
+}
+function gsCountdown(){
+  if(G.phase!=="ready") return;
+  G.phase="count"; gsShow("gsCount");
+  let n=3;
+  const tick=()=>{
+    if(n===0){ gsBegin(); return; }
+    const el=$("gsNum"); el.textContent=n; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+    buzz(8); n--; G.tos.push(setTimeout(tick,800));
+  };
+  tick();
+}
+function gsBegin(){
+  G.phase="play"; gsShow("gsPlay"); gsNext();
+  if(G.time>0){ G.end=performance.now()+G.time*1000; gsTick(); G.iv=setInterval(gsTick,200); }
+}
+function gsTick(){
+  const rem=Math.max(0,Math.ceil((G.end-performance.now())/1000));
+  $("gsTime").textContent = fmtTime(rem);
+  $("gsTime").classList.toggle("low", rem<=5 && G.phase==="play");
+  if(rem<=0 && G.phase==="play") gsFinish(true);
+}
+function gsNext(){
+  if(G.idx>=G.deck.length){ G.deck=shuffle(G.deck); G.idx=0; }
+  G.cur=G.deck[G.idx++];
+  const el=$("gsName");
+  el.textContent=G.cur.n; el.style.setProperty("--gfs", gsFS(G.cur.n));
+  el.classList.remove("in"); void el.offsetWidth; el.classList.add("in");
+  $("gsCat").textContent=G.cur.c;
+  $("guessplay").style.setProperty("--gbg", GQC[G.cur.c]);
+}
+function gsAnswer(ok){
+  if(G.phase!=="play" || performance.now()<G.lock) return;
+  G.res.push({n:G.cur.n, ok}); gsScore();
+  G.lock=performance.now()+520;
+  const f=$("gsFlash"); f.textContent = ok?"¡Bien!":"Paso"; f.style.background = ok?"#2f9a58":"#3a3f4a";
+  f.hidden=false; f.classList.remove("on"); void f.offsetWidth; f.classList.add("on");
+  buzz(ok?[20,30,20]:15);
+  G.tos.push(setTimeout(()=>{ f.hidden=true; if(G.phase==="play") gsNext(); },480));
+}
+function gsFinish(timeUp){
+  gsStop(); G.phase="end";
+  const h=gsScore();
+  $("gsEndLabel").textContent = timeUp ? "Se acabó el tiempo" : "Ronda terminada";
+  $("gsEndScore").textContent = `${h} adivinada${h===1?"":"s"}`;
+  $("gsList").innerHTML = G.res.length
+    ? G.res.map(r=>`<li class="${r.ok?"":"no"}"><span>${esc(r.n)}</span><span>${r.ok?"Sí":"Pasó"}</span></li>`).join("")
+    : `<li><span>No hubo respuestas</span><span></span></li>`;
+  $("guessplay").style.setProperty("--gbg","#c96f12");
+  gsShow("gsDone"); buzz([40,60,40]);
+}
+$("gsHome").addEventListener("click", ()=>go("home"));
+$("gsCats").addEventListener("click", e=>{ const b=e.target.closest(".cat"); if(!b) return; const k=b.dataset.k; G.cats.has(k)?G.cats.delete(k):G.cats.add(k); gsSave(); gsRender(); });
+$("gsAll").addEventListener("click", ()=>{ G.cats=new Set(Object.keys(GQ)); gsSave(); gsRender(); });
+$("gsSeg").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; G.time=+b.dataset.v; gsSave(); gsRender(); });
+$("gsGo").addEventListener("click", gsStart);
+$("gsReady").addEventListener("click", gsCountdown);
+$("gsPass").addEventListener("click", ()=>gsAnswer(false));
+$("gsHit").addEventListener("click", ()=>gsAnswer(true));
+$("gsStopBtn").addEventListener("click", ()=>{ if(G.phase==="play") gsFinish(false); });
+$("gsAgain").addEventListener("click", gsStart);
+$("gsChange").addEventListener("click", ()=>go("guess"));
+$("gsBack").addEventListener("click", ()=>{ if(G.phase==="play"||G.phase==="count") askLeave("guess"); else go("home"); });
+document.addEventListener("keydown", e=>{
+  if($("guessplay").hidden || !$("gconfirm").hidden) return;
+  if(G.phase==="ready" && (e.key===" "||e.key==="Enter")){ e.preventDefault(); gsCountdown(); }
+  else if(G.phase==="play"){ if(e.key==="ArrowRight"||e.key==="Enter"){ e.preventDefault(); gsAnswer(true); } if(e.key==="ArrowLeft"){ e.preventDefault(); gsAnswer(false); } }
+});
+
+/* boot */
+load(); renderPlayers(); renderCats(); go("home");
+</script>
+
+<script>
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>

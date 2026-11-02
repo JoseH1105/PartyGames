@@ -1,0 +1,16 @@
+{
+  "name": "Brindis",
+  "short_name": "Brindis",
+  "description": "Juegos para la fiesta: Retos, Kings Cup, Chooser, El impostor y Adivina quién soy.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#15101d",
+  "theme_color": "#15101d",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
