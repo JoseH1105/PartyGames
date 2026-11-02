@@ -126,7 +126,7 @@ Sobre pantallas de juego (fondo saturado) no se usan los tokens de superficie; s
 
 ## 4. Tipografía
 
-Se cargan desde Google Fonts y el service worker las guarda para uso sin conexión.
+Se sirven desde la carpeta `fonts/` del propio sitio (subconjunto latino en `.woff2`, licencia SIL OFL), así ningún dato de quien abre la app llega a terceros. El service worker las guarda para uso sin conexión. No vuelvan a enlazar Google Fonts ni otro CDN; si hace falta un carácter fuera del subconjunto latino, descarguen el subconjunto correspondiente a `fonts/`.
 
 | Token | Familia | Pesos | Uso |
 | --- | --- | --- | --- |
@@ -219,7 +219,7 @@ Siempre: solo vertical (`orientation: portrait`), áreas seguras respetadas, se 
 
 ## 8. Reglas técnicas que afectan el estilo
 
-- Todo vive en `index.html` (CSS en `<style>`, JS en `<script>`). No se agregan frameworks ni dependencias externas, salvo las fuentes.
+- Todo vive en `index.html` (CSS en `<style>`, JS en `<script>`), más las fuentes en `fonts/`. No se agregan frameworks, CDNs, analítica ni llamadas a servidores: la app no envía datos fuera del celular.
 - Nuevas pantallas: agregar su `id` a `SCREENS` y su lógica de entrada/salida en `go()`.
 - Configuración guardada en `localStorage` con prefijo `brindis.` (`brindis.v1`, `brindis.imp`, `brindis.guess`, `brindis.kdesc`), siempre dentro de `try/catch`.
 - Cada cambio publicado: subir `CACHE` en `sw.js` (`brindis-v1` → `brindis-v2`…).

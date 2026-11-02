@@ -22,10 +22,12 @@ img{max-width:100%}
 <body>
 <title>Brindis</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="preload" href="fonts/dela-gothic-one-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Fonts served from this site (latin subset, SIL OFL; see fonts/), so no visitor data goes to third parties */
+@font-face{font-family:"Dela Gothic One";font-weight:400;font-display:swap;src:url(fonts/dela-gothic-one-latin.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:300 900;font-display:swap;src:url(fonts/figtree-latin.woff2) format("woff2")}
 /* Layout: one-screen party app. Setup = stacked panels; game = full-bleed colored card, tap anywhere to advance. Single deliberate dark look. */
 :root{
   --bg:#15101d; --surface:#211a2c; --surface-2:#2b2239; --line:#3b3050;

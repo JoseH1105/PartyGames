@@ -43,6 +43,7 @@ Queda un ícono en la pantalla de inicio y la app se abre a pantalla completa, s
 | --- | --- |
 | `index.html` | Toda la app (HTML, CSS y JavaScript en un solo archivo) |
 | `manifest.webmanifest`, `icons/` | Nombre e ícono para instalarla |
+| `fonts/` | Fuentes Dela Gothic One y Figtree (licencia SIL OFL), servidas desde el propio sitio |
 | `sw.js` | Guarda la app para usarla sin conexión |
 | `screenshots/` | Capturas de este README |
 
