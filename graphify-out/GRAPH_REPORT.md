@@ -4,26 +4,25 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 106 nodes · 214 edges · 10 communities (9 shown, 1 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.85)
+- 109 nodes · 217 edges · 9 communities (8 shown, 1 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1db6c9aa`
+- Built from commit: `383f0f55`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Community 0
-- Community 1
-- Community 2
-- Community 3
-- Community 4
-- Community 5
-- Community 6
-- Community 7
-- Community 8
-- Community 9
+- index.html.js
+- buzz
+- chTick
+- go
+- rnd
+- kRender
+- show
+- esc
+- sw.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `go()` - 11 edges
@@ -52,43 +51,39 @@
 ## Import Cycles
 - None detected.
 
-## Communities (10 total, 1 thin omitted)
+## Communities (9 total, 1 thin omitted)
 
-### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (26): CATS, CH, CH_COLORS, cv, cx, FIN, G, GQ (+18 more)
+### Community 0 - "index.html.js"
+Cohesion: 0.05
+Nodes (28): bgObs, CATS, CH, CH_COLORS, cv, cx, FIN, G (+20 more)
 
-### Community 1 - "Community 1"
+### Community 1 - "buzz"
 Cohesion: 0.21
 Nodes (15): buzz(), fmtTime(), gsAnswer(), gsBegin(), gsCountdown(), gsFinish(), gsFS(), gsNext() (+7 more)
 
-### Community 2 - "Community 2"
+### Community 2 - "chTick"
 Cohesion: 0.22
 Nodes (11): chDraw(), chHint(), chLift(), chReset(), chResize(), chStart(), chStop(), chTick() (+3 more)
 
-### Community 3 - "Community 3"
+### Community 3 - "go"
 Cohesion: 0.31
 Nodes (10): go(), gsRender(), impCount(), impMaxImps(), impPickWord(), impSetupRender(), impStart(), impUsingNames() (+2 more)
 
-### Community 4 - "Community 4"
-Cohesion: 0.33
-Nodes (9): chColor(), draw(), fill(), key(), nextCard(), pickCouple(), pickPlayer(), rnd() (+1 more)
+### Community 4 - "rnd"
+Cohesion: 0.29
+Nodes (10): buildDeck(), chColor(), draw(), fill(), key(), nextCard(), pickCouple(), pickPlayer() (+2 more)
 
-### Community 5 - "Community 5"
+### Community 5 - "kRender"
 Cohesion: 0.29
 Nodes (8): cardFace(), faceSvg(), kEnter(), kNew(), kRender(), kSetDesc(), makeBubbles(), renderCrowns()
 
-### Community 6 - "Community 6"
-Cohesion: 0.40
-Nodes (6): advance(), buildDeck(), fontSizeFor(), goBack(), show(), startGame()
+### Community 6 - "show"
+Cohesion: 0.50
+Nodes (5): advance(), fontSizeFor(), goBack(), show(), startGame()
 
-### Community 7 - "Community 7"
-Cohesion: 0.40
-Nodes (6): esc(), impCover(), impHide(), impSecret(), impTalk(), ipShow()
-
-### Community 8 - "Community 8"
-Cohesion: 0.40
-Nodes (5): couples(), heart(), renderCats(), renderPlayers(), validate()
+### Community 7 - "esc"
+Cohesion: 0.20
+Nodes (11): couples(), esc(), heart(), impCover(), impHide(), impSecret(), impTalk(), ipShow() (+3 more)
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -96,11 +91,11 @@ Nodes (5): couples(), heart(), renderCats(), renderPlayers(), validate()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `go()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 5`, `Community 6`?**
+- **Why does `go()` connect `go` to `index.html.js`, `buzz`, `chTick`, `kRender`, `show`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
-- **Why does `rnd()` connect `Community 4` to `Community 0`, `Community 2`, `Community 3`, `Community 7`?**
+- **Should `index.html.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected._
+- **Why does `rnd()` connect `rnd` to `index.html.js`, `chTick`, `go`, `esc`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **Why does `shuffle()` connect `Community 4` to `Community 0`, `Community 1`, `Community 3`, `Community 5`, `Community 6`?**
+- **Why does `shuffle()` connect `rnd` to `index.html.js`, `buzz`, `go`, `kRender`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
