@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 110 nodes · 218 edges · 10 communities (9 shown, 1 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.85)
+- 109 nodes · 217 edges · 9 communities (8 shown, 1 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `21d2ccfa`
+- Built from commit: `cdc6f37b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,7 +22,6 @@
 - kRender
 - show
 - esc
-- renderPlayers
 - sw.js
 
 ## God Nodes (most connected - your core abstractions)
@@ -52,7 +51,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (10 total, 1 thin omitted)
+## Communities (9 total, 1 thin omitted)
 
 ### Community 0 - "index.html.js"
 Cohesion: 0.05
@@ -75,20 +74,16 @@ Cohesion: 0.29
 Nodes (10): buildDeck(), chColor(), draw(), fill(), key(), nextCard(), pickCouple(), pickPlayer() (+2 more)
 
 ### Community 5 - "kRender"
-Cohesion: 0.33
-Nodes (7): cardFace(), faceSvg(), kEnter(), kNew(), kRender(), kSetDesc(), renderCrowns()
+Cohesion: 0.29
+Nodes (8): cardFace(), faceSvg(), kEnter(), kNew(), kRender(), kSetDesc(), makeBubbles(), renderCrowns()
 
 ### Community 6 - "show"
-Cohesion: 0.40
-Nodes (6): advance(), fontSizeFor(), goBack(), makeBubbles(), show(), startGame()
+Cohesion: 0.50
+Nodes (5): advance(), fontSizeFor(), goBack(), show(), startGame()
 
 ### Community 7 - "esc"
-Cohesion: 0.40
-Nodes (6): esc(), impCover(), impHide(), impSecret(), impTalk(), ipShow()
-
-### Community 8 - "renderPlayers"
-Cohesion: 0.40
-Nodes (5): couples(), heart(), renderCats(), renderPlayers(), validate()
+Cohesion: 0.20
+Nodes (11): couples(), esc(), heart(), impCover(), impHide(), impSecret(), impTalk(), ipShow() (+3 more)
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -99,7 +94,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `go()` connect `go` to `index.html.js`, `buzz`, `chTick`, `kRender`, `show`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **Should `index.html.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05263157894736842 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected._
 - **Why does `rnd()` connect `rnd` to `index.html.js`, `chTick`, `go`, `esc`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
 - **Why does `shuffle()` connect `rnd` to `index.html.js`, `buzz`, `go`, `kRender`?**

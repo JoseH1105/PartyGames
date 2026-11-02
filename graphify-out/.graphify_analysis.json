@@ -7,7 +7,6 @@
       "index_html_cats",
       "index_html_ch",
       "index_html_ch_colors",
-      "index_html_checkiosgap",
       "index_html_chpos",
       "index_html_cv",
       "index_html_cx",
@@ -101,27 +100,25 @@
       "index_html_knew",
       "index_html_krender",
       "index_html_ksetdesc",
+      "index_html_makebubbles",
       "index_html_rendercrowns"
     ],
     "6": [
       "index_html_advance",
       "index_html_fontsizefor",
       "index_html_goback",
-      "index_html_makebubbles",
       "index_html_show",
       "index_html_startgame"
     ],
     "7": [
+      "index_html_couples",
       "index_html_esc",
+      "index_html_heart",
       "index_html_impcover",
       "index_html_imphide",
       "index_html_impsecret",
       "index_html_imptalk",
-      "index_html_ipshow"
-    ],
-    "8": [
-      "index_html_couples",
-      "index_html_heart",
+      "index_html_ipshow",
       "index_html_rendercats",
       "index_html_renderplayers",
       "index_html_validate"
@@ -132,15 +129,14 @@
     ]
   },
   "cohesion": {
-    "0": 0.05263157894736842,
+    "0": 0.05405405405405406,
     "1": 0.20952380952380953,
     "2": 0.21818181818181817,
     "3": 0.3111111111111111,
     "4": 0.28888888888888886,
-    "5": 0.3333333333333333,
-    "6": 0.4,
-    "7": 0.4,
-    "8": 0.4,
+    "5": 0.2857142857142857,
+    "6": 0.5,
+    "7": 0.2,
     "9": 1.0
   },
   "gods": [
@@ -261,7 +257,7 @@
     {
       "type": "low_cohesion",
       "question": "Should `index.html.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.05263157894736842 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected."
     },
     {
       "type": "bridge_node",

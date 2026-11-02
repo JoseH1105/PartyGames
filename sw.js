@@ -1,6 +1,6 @@
 // Brindis service worker: la página se pide primero a la red (para recibir cambios)
 // y, sin conexión, se sirve desde la caché.
-const CACHE = "brindis-v3";
+const CACHE = "brindis-v4";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
